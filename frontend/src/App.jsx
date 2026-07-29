@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import PublicProducts from './pages/PublicProducts';
 import AdminDashboard from './pages/AdminDashboard';
 import Signup from './pages/Signup';
+import Login from './pages/Login';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -35,6 +36,7 @@ function App() {
           <Route path="/" element={<PublicProducts />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/signup" element={<Signup onAuthSuccess={() => setIsLoggedIn(true)} />} />
+          <Route path="/login" element={<Login onAuthSuccess={() => setIsLoggedIn(true)} />} />
         </Routes>
       </main>
     </div>
