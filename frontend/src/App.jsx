@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('token')));
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -15,14 +16,25 @@ function App() {
 
   const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+  };
+
   return (
     <div className="app">
-      <Navbar theme={theme} onToggleTheme={toggleTheme} />
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
       <main>
         <Routes>
           <Route path="/" element={<PublicProducts />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<Signup onAuthSuccess={() => setIsLoggedIn(true)} />} />
         </Routes>
       </main>
     </div>
