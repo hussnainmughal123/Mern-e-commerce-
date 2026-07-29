@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
 import PublicProducts from './pages/PublicProducts';
 import AdminDashboard from './pages/AdminDashboard';
 import Signup from './pages/Signup';
@@ -34,13 +35,12 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<PublicProducts />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/signup" element={<Signup onAuthSuccess={() => setIsLoggedIn(true)} />} />
-          <Route path="/login" element={<Login onAuthSuccess={() => setIsLoggedIn(true)} />} />
-        </Routes>
-      </main>
-    </div>
-  );
-}
-
-export default App;
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/signup" element={
