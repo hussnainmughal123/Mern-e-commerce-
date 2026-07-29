@@ -1,6 +1,8 @@
 import { NavLink } from 'react-router-dom';
 
 const Navbar = ({ theme, onToggleTheme }) => {
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
@@ -16,6 +18,11 @@ const Navbar = ({ theme, onToggleTheme }) => {
             <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')}>
               Admin Dashboard
             </NavLink>
+            {!isLoggedIn && (
+              <NavLink to="/signup" className={({ isActive }) => (isActive ? 'active' : '')}>
+                Sign Up
+              </NavLink>
+            )}
           </nav>
           <button
             type="button"
