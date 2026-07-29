@@ -4,7 +4,7 @@ import { signup } from '../api/authApi';
 
 const emptyForm = { name: '', email: '', password: '', confirmPassword: '' };
 
-const Signup = () => {
+const Signup = ({ onAuthSuccess }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
@@ -39,6 +39,7 @@ const Signup = () => {
       const data = await signup({ name: form.name, email: form.email, password: form.password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      onAuthSuccess?.();
       navigate('/');
     } catch (err) {
       setServerError(err.message);
