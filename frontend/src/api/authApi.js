@@ -11,3 +11,12 @@ export const signup = async ({ name, email, password }) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const login = async ({ email, password }) => {
+  try {
+    const { data } = await api.post('/auth/login', { email, password });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
