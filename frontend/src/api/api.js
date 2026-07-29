@@ -7,6 +7,28 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Automatically attach the auth token (once Phase 2 login is added) to every
+// outgoing request, without any calling code needing to know about it.
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Centralized response handling: normalizes errors and will later handle
+// automatic logout on 401 once auth is wired up in Phase 2.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
+
 const getErrorMessage = (error) =>
   error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
 
