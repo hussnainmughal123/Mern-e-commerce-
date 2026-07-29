@@ -1,7 +1,12 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
-const Navbar = ({ theme, onToggleTheme }) => {
-  const isLoggedIn = Boolean(localStorage.getItem('token'));
+const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onLogout();
+    navigate('/');
+  };
 
   return (
     <header className="navbar">
@@ -24,6 +29,11 @@ const Navbar = ({ theme, onToggleTheme }) => {
               </NavLink>
             )}
           </nav>
+          {isLoggedIn && (
+            <button type="button" className="btn btn-secondary btn-small" onClick={handleLogout}>
+              Logout
+            </button>
+          )}
           <button
             type="button"
             className="theme-toggle"
