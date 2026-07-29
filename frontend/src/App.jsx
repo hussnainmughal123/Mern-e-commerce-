@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import PublicProducts from './pages/PublicProducts';
 import AdminDashboard from './pages/AdminDashboard';
+import Signup from './pages/Signup';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicProducts />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
     </div>
