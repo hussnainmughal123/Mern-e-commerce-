@@ -9,13 +9,18 @@ const {
   getStats,
   getCategories,
 } = require('../controllers/productController');
+const { protect, adminOnly } = require('../middleware/auth');
 
 // Specific routes must come before /:id to avoid route collisions
-router.get('/stats/summary', getStats);
+router.get('/stats/summary', protect, adminOnly, getStats);
 router.get('/categories/list', getCategories);
 
-router.route('/').get(getProducts).post(createProduct);
+router.route('/').get(getProducts).post(protect, adminOnly, createProduct);
 
-router.route('/:id').get(getProduct).put(updateProduct).delete(deleteProduct);
+router
+  .route('/:id')
+  .get(getProduct)
+  .put(protect, adminOnly, updateProduct)
+  .delete(protect, adminOnly, deleteProduct);
 
 module.exports = router;
