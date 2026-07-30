@@ -6,6 +6,7 @@ import PublicProducts from './pages/PublicProducts';
 import AdminDashboard from './pages/AdminDashboard';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -43,4 +44,20 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/signup" element={
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute isLoggedIn={isLoggedIn}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/signup" element={<Signup onAuthSuccess={() => setIsLoggedIn(true)} />} />
+          <Route path="/login" element={<Login onAuthSuccess={() => setIsLoggedIn(true)} />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
+export default App;
