@@ -11,6 +11,10 @@ const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 const app = express();
 
+// Render sits behind a reverse proxy; trust the first hop so express-rate-limit
+// and req.ip see the real client IP instead of throwing X-Forwarded-For warnings.
+app.set('trust proxy', 1);
+
 // Connect to MongoDB
 connectDB();
 
@@ -30,7 +34,6 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, server-to-server)
       if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
