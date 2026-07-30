@@ -80,7 +80,11 @@ const Login = ({ onAuthSuccess }) => {
         </button>
       </form>
 
-      <p style={{ marginTop: 16, textAlign: 'center', color: 'var(--color-text-muted)' }}>
+      <p style={{ marginTop: 12, textAlign: 'center' }}>
+        <Link to="/forgot-password">Forgot your password?</Link>
+      </p>
+
+      <p style={{ marginTop: 8, textAlign: 'center', color: 'var(--color-text-muted)' }}>
         Don&apos;t have an account? <Link to="/signup">Sign up</Link>
       </p>
     </div>
