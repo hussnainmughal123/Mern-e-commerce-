@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -61,6 +62,7 @@ function App() {
             path="/reset-password/:token"
             element={<ResetPassword onAuthSuccess={() => setIsLoggedIn(true)} />}
           />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
         </Routes>
       </main>
     </div>
