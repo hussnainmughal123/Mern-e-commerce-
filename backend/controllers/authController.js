@@ -158,6 +158,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
       `,
     });
   } catch (error) {
+    console.error('sendEmail failed:', error.message);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save({ validateBeforeSave: false });
