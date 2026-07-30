@@ -20,3 +20,21 @@ export const login = async ({ email, password }) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const getProfile = async () => {
+  try {
+    const { data } = await api.get('/auth/me');
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const updateProfile = async ({ name, email }) => {
+  try {
+    const { data } = await api.put('/auth/profile', { name, email });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
