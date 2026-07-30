@@ -56,3 +56,12 @@ export const resetPassword = async (token, password) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const verifyEmail = async (token) => {
+  try {
+    const { data } = await api.get(`/auth/verify-email/${token}`);
+    return data.message;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
