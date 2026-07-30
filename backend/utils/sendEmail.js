@@ -1,24 +1,23 @@
-const nodemailer = require('nodemailer');
-
 const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
     },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
+    body: JSON.stringify({
+      sender: { name: 'ShopDash', email: process.env.EMAIL_USER },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
 
-  await transporter.sendMail({
-    from: `"ShopDash" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
-  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Brevo API responded with status ${response.status}`);
+  }
 };
 
 module.exports = sendEmail;
