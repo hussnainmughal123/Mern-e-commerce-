@@ -6,6 +6,7 @@ import ErrorMessage from '../components/ErrorMessage';
 const Profile = () => {
   const [form, setForm] = useState({ name: '', email: '' });
   const [role, setRole] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
@@ -19,6 +20,7 @@ const Profile = () => {
       const data = await getProfile();
       setForm({ name: data.name, email: data.email });
       setRole(data.role);
+      setIsVerified(data.isVerified);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -93,6 +95,15 @@ const Profile = () => {
             <div className="form-group">
               <label>Account Type</label>
               <p style={{ margin: 0, textTransform: 'capitalize' }}>{role}</p>
+            </div>
+
+            <div className="form-group">
+              <label>Email Status</label>
+              {isVerified ? (
+                <span className="tag tag-success">Verified</span>
+              ) : (
+                <span className="tag tag-danger">Not verified</span>
+              )}
             </div>
 
             <button type="submit" className="btn btn-primary" disabled={submitting}>
