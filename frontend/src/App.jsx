@@ -7,6 +7,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -54,6 +56,11 @@ function App() {
           />
           <Route path="/signup" element={<Signup onAuthSuccess={() => setIsLoggedIn(true)} />} />
           <Route path="/login" element={<Login onAuthSuccess={() => setIsLoggedIn(true)} />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPassword onAuthSuccess={() => setIsLoggedIn(true)} />}
+          />
         </Routes>
       </main>
     </div>
