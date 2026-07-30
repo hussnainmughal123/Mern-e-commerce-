@@ -22,6 +22,27 @@ const signup = asyncHandler(async (req, res) => {
 
   const user = await User.create({ name, email, password });
 
+  try {
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    user.verificationToken = hashedToken;
+    user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+    await sendEmail({
+      to: user.email,
+      subject: 'ShopDash — Verify your email',
+      html: `
+        <p>Hi ${user.name},</p>
+        <p>Welcome to ShopDash! Please confirm your email address by clicking the link below. This link expires in 24 hours.</p>
+        <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      `,
+    });
+  } catch (error) {
+    console.error('Verification email failed to send:', error.message);
+  }
+
   const token = generateToken(user._id, user.role);
 
   res.status(201).json({
@@ -32,6 +53,7 @@ const signup = asyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
       },
       token,
     },
@@ -81,6 +103,7 @@ const getProfile = asyncHandler(async (req, res) => {
       name: req.user.name,
       email: req.user.email,
       role: req.user.role,
+      isVerified: req.user.isVerified,
       createdAt: req.user.createdAt,
     },
   });
@@ -213,4 +236,38 @@ const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { signup, login, getProfile, updateProfile, forgotPassword, resetPassword };
+// @desc    Verify a user's email using the token from the verification email
+// @route   GET /api/auth/verify-email/:token
+// @access  Public
+const verifyEmail = asyncHandler(async (req, res) => {
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const user = await User.findOne({
+    verificationToken: hashedToken,
+    verificationTokenExpire: { $gt: Date.now() },
+  }).select('+verificationToken +verificationTokenExpire');
+
+  if (!user) {
+    throw new ApiError(400, 'This verification link is invalid or has expired');
+  }
+
+  user.isVerified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpire = undefined;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Email verified successfully.',
+  });
+});
+
+module.exports = {
+  signup,
+  login,
+  getProfile,
+  updateProfile,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+};
