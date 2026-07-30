@@ -38,3 +38,21 @@ export const updateProfile = async ({ name, email }) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const forgotPassword = async (email) => {
+  try {
+    const { data } = await api.post('/auth/forgot-password', { email });
+    return data.message;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const resetPassword = async (token, password) => {
+  try {
+    const { data } = await api.put(`/auth/reset-password/${token}`, { password });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
