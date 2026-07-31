@@ -1,10 +1,12 @@
+import { Link } from 'react-router-dom';
+
 const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 
 const ProductCard = ({ product }) => {
   const outOfStock = product.stock <= 0;
 
   return (
-    <div className="product-card">
+    <Link to={`/products/${product._id}`} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className="product-card-img">
         <img
           src={product.imageUrl || FALLBACK_IMG}
@@ -27,7 +29,7 @@ const ProductCard = ({ product }) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
