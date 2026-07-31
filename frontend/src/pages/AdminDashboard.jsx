@@ -33,8 +33,11 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [productData, statsData] = await Promise.all([getProducts(), getStats()]);
-      setProducts(productData);
+      const [productData, statsData] = await Promise.all([
+        getProducts({ limit: 1000 }),
+        getStats(),
+      ]);
+      setProducts(productData.products);
       setStats(statsData);
     } catch (err) {
       setError(err.message);
