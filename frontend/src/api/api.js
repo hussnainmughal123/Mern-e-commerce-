@@ -7,8 +7,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Automatically attach the auth token (once Phase 2 login is added) to every
-// outgoing request, without any calling code needing to know about it.
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -17,8 +15,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Centralized response handling: normalizes errors and will later handle
-// automatic logout on 401 once auth is wired up in Phase 2.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -32,13 +28,14 @@ api.interceptors.response.use(
 const getErrorMessage = (error) =>
   error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
 
-export const getProducts = async ({ search = '', category = '' } = {}) => {
+export const getProducts = async ({ search = '', category = '', sort = '', page = 1, limit = 12 } = {}) => {
   try {
-    const params = {};
+    const params = { page, limit };
     if (search) params.search = search;
     if (category && category !== 'All') params.category = category;
+    if (sort) params.sort = sort;
     const { data } = await api.get('/products', { params });
-    return data.data;
+    return { products: data.data, total: data.total, page: data.page, totalPages: data.totalPages };
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
