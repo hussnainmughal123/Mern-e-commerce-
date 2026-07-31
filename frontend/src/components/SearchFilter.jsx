@@ -1,4 +1,4 @@
-const SearchFilter = ({ search, setSearch, category, setCategory, categories }) => {
+const SearchFilter = ({ search, setSearch, category, setCategory, categories, sort, setSort }) => {
   return (
     <div className="search-filter">
       <input
@@ -21,6 +21,18 @@ const SearchFilter = ({ search, setSearch, category, setCategory, categories }) 
             {cat}
           </option>
         ))}
+      </select>
+      <select
+        value={sort}
+        onChange={(e) => setSort(e.target.value)}
+        aria-label="Sort products"
+        className="category-select"
+      >
+        <option value="newest">Newest First</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="name_asc">Name: A to Z</option>
+        <option value="name_desc">Name: Z to A</option>
       </select>
     </div>
   );
