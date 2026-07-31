@@ -661,7 +661,17 @@ body {
   border-radius: var(--radius);
   margin-bottom: 18px;
   font-weight: 500;
+}  
+
+/* ---------- Pagination ---------- */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 32px;
 }
+
 /* ---------- Product Details ---------- */
 .details-grid {
   display: grid;
