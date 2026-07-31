@@ -2,11 +2,11 @@ const Product = require('../models/Product');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 
-// @desc    Get all products (supports search, category filter, pagination)
-// @route   GET /api/products?search=&category=&page=&limit=
+// @desc    Get all products (supports search, category filter, sorting, pagination)
+// @route   GET /api/products?search=&category=&sort=&page=&limit=
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const { search, category, page = 1, limit = 100 } = req.query;
+  const { search, category, sort, page = 1, limit = 12 } = req.query;
 
   const query = {};
 
@@ -18,12 +18,22 @@ const getProducts = asyncHandler(async (req, res) => {
     query.category = category;
   }
 
+  const sortOptions = {
+    newest: { createdAt: -1 },
+    oldest: { createdAt: 1 },
+    price_asc: { price: 1 },
+    price_desc: { price: -1 },
+    name_asc: { name: 1 },
+    name_desc: { name: -1 },
+  };
+  const sortBy = sortOptions[sort] || sortOptions.newest;
+
   const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-  const limitNum = Math.max(parseInt(limit, 10) || 100, 1);
+  const limitNum = Math.max(parseInt(limit, 10) || 12, 1);
   const skip = (pageNum - 1) * limitNum;
 
   const [products, total] = await Promise.all([
-    Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+    Product.find(query).sort(sortBy).skip(skip).limit(limitNum),
     Product.countDocuments(query),
   ]);
 
