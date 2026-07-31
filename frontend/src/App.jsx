@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicProducts from './pages/PublicProducts';
+import ProductDetails from './pages/ProductDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -39,6 +40,7 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<PublicProducts />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
           <Route
             path="/admin"
             element={
