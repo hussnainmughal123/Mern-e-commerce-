@@ -13,6 +13,12 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Category is required'],
       trim: true,
     },
+    brand: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [60, 'Brand name cannot exceed 60 characters'],
+    },
     price: {
       type: Number,
       required: [true, 'Price is required'],
@@ -37,7 +43,7 @@ const productSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // adds createdAt (Created date) and updatedAt automatically
+    timestamps: true,
   }
 );
 
