@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getProducts, getCategories } from '../api/api';
+import { getProducts, getCategories, getBrands } from '../api/api';
 import ProductCard from '../components/ProductCard';
 import SearchFilter from '../components/SearchFilter';
 import Pagination from '../components/Pagination';
@@ -9,10 +9,12 @@ import ErrorMessage from '../components/ErrorMessage';
 const PublicProducts = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
+  const [brand, setBrand] = useState('All');
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -21,7 +23,7 @@ const PublicProducts = () => {
     setLoading(true);
     setError('');
     try {
-      const data = await getProducts({ search, category, sort, page, limit: 12 });
+      const data = await getProducts({ search, category, brand, sort, page, limit: 12 });
       setProducts(data.products);
       setTotalPages(data.totalPages || 1);
     } catch (err) {
@@ -29,17 +31,20 @@ const PublicProducts = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, category, sort, page]);
+  }, [search, category, brand, sort, page]);
 
   useEffect(() => {
     getCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
+    getBrands()
+      .then(setBrands)
+      .catch(() => setBrands([]));
   }, []);
 
   useEffect(() => {
     setPage(1);
-  }, [search, category, sort]);
+  }, [search, category, brand, sort]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -49,6 +54,7 @@ const PublicProducts = () => {
   }, [loadProducts]);
 
   const sortedCategories = useMemo(() => [...categories].sort(), [categories]);
+  const sortedBrands = useMemo(() => [...brands].sort(), [brands]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -68,6 +74,9 @@ const PublicProducts = () => {
         category={category}
         setCategory={setCategory}
         categories={sortedCategories}
+        brand={brand}
+        setBrand={setBrand}
+        brands={sortedBrands}
         sort={sort}
         setSort={setSort}
       />
