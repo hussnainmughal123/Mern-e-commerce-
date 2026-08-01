@@ -72,6 +72,9 @@ const ProductDetails = () => {
         <div className="details-info">
           <span className="category-tag">{product.category}</span>
           <h1 style={{ margin: '10px 0' }}>{product.name}</h1>
+          {product.brand && (
+            <p style={{ margin: '-6px 0 6px', color: 'var(--color-text-muted)' }}>Brand: {product.brand}</p>
+          )}
           <p className="price" style={{ fontSize: '1.6rem' }}>
             ${Number(product.price).toFixed(2)}
           </p>
