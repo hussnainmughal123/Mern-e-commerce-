@@ -11,6 +11,7 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
             <th>Image</th>
             <th>Name</th>
             <th>Category</th>
+            <th>Brand</th>
             <th>Price</th>
             <th>Stock</th>
             <th>Created</th>
@@ -27,6 +28,7 @@ const ProductTable = ({ products, onEdit, onDelete }) => {
                 {p.name}
               </td>
               <td>{p.category}</td>
+              <td>{p.brand || '—'}</td>
               <td>${Number(p.price).toFixed(2)}</td>
               <td>
                 {p.stock === 0 ? (
