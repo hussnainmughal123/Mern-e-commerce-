@@ -2,11 +2,11 @@ const Product = require('../models/Product');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 
-// @desc    Get all products (supports search, category filter, sorting, pagination)
-// @route   GET /api/products?search=&category=&sort=&page=&limit=
+// @desc    Get all products (supports search, category/brand filter, sorting, pagination)
+// @route   GET /api/products?search=&category=&brand=&sort=&page=&limit=
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const { search, category, sort, page = 1, limit = 12 } = req.query;
+  const { search, category, brand, sort, page = 1, limit = 12 } = req.query;
 
   const query = {};
 
@@ -16,6 +16,10 @@ const getProducts = asyncHandler(async (req, res) => {
 
   if (category && category !== 'All') {
     query.category = category;
+  }
+
+  if (brand && brand !== 'All') {
+    query.brand = brand;
   }
 
   const sortOptions = {
@@ -64,9 +68,9 @@ const getProduct = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, category, price, description, imageUrl, stock } = req.body;
+  const { name, category, brand, price, description, imageUrl, stock } = req.body;
 
-  const product = await Product.create({ name, category, price, description, imageUrl, stock });
+  const product = await Product.create({ name, category, brand, price, description, imageUrl, stock });
 
   res.status(201).json({ success: true, data: product });
 });
@@ -126,6 +130,14 @@ const getCategories = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: categories });
 });
 
+// @desc    Get distinct brands (for filter dropdown)
+// @route   GET /api/products/brands/list
+// @access  Public
+const getBrands = asyncHandler(async (req, res) => {
+  const brands = await Product.distinct('brand');
+  res.status(200).json({ success: true, data: brands.filter(Boolean) });
+});
+
 module.exports = {
   getProducts,
   getProduct,
@@ -134,4 +146,5 @@ module.exports = {
   deleteProduct,
   getStats,
   getCategories,
+  getBrands,
 };
