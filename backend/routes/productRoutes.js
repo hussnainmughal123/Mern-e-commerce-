@@ -8,12 +8,14 @@ const {
   deleteProduct,
   getStats,
   getCategories,
+  getBrands,
 } = require('../controllers/productController');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // Specific routes must come before /:id to avoid route collisions
 router.get('/stats/summary', protect, adminOnly, getStats);
 router.get('/categories/list', getCategories);
+router.get('/brands/list', getBrands);
 
 router.route('/').get(getProducts).post(protect, adminOnly, createProduct);
 
