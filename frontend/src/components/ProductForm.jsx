@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 const EMPTY_FORM = {
   name: "",
   category: "",
+  brand: "",
   price: "",
   description: "",
   imageUrl: "",
@@ -18,6 +19,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       setForm({
         name: initialData.name || "",
         category: initialData.category || "",
+        brand: initialData.brand || "",
         price: initialData.price ?? "",
         description: initialData.description || "",
         imageUrl: initialData.imageUrl || "",
@@ -71,6 +73,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     onSubmit({
       name: form.name.trim(),
       category: form.category.trim(),
+      brand: form.brand.trim(),
       price: Number(form.price),
       description: form.description.trim(),
       imageUrl: form.imageUrl.trim(),
@@ -104,6 +107,17 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
             className={errors.category ? "input-error" : ""}
           />
           {errors.category && <span className="field-error">{errors.category}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="brand">Brand</label>
+          <input
+            id="brand"
+            type="text"
+            placeholder="e.g. JBL"
+            value={form.brand}
+            onChange={(e) => handleChange("brand", e.target.value)}
+          />
         </div>
 
         <div className="form-group">
