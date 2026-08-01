@@ -21,6 +21,7 @@ const ProductCard = ({ product }) => {
       <div className="product-card-body">
         <span className="category-tag">{product.category}</span>
         <h3 title={product.name}>{product.name}</h3>
+        {product.brand && <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>{product.brand}</p>}
         <p className="description">{product.description}</p>
         <div className="product-card-footer">
           <span className="price">${Number(product.price).toFixed(2)}</span>
