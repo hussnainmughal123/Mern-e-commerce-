@@ -1,4 +1,15 @@
-const SearchFilter = ({ search, setSearch, category, setCategory, categories, sort, setSort }) => {
+const SearchFilter = ({
+  search,
+  setSearch,
+  category,
+  setCategory,
+  categories,
+  brand,
+  setBrand,
+  brands,
+  sort,
+  setSort,
+}) => {
   return (
     <div className="search-filter">
       <input
@@ -19,6 +30,19 @@ const SearchFilter = ({ search, setSearch, category, setCategory, categories, so
         {categories.map((cat) => (
           <option key={cat} value={cat}>
             {cat}
+          </option>
+        ))}
+      </select>
+      <select
+        value={brand}
+        onChange={(e) => setBrand(e.target.value)}
+        aria-label="Filter by brand"
+        className="category-select"
+      >
+        <option value="All">All Brands</option>
+        {brands.map((b) => (
+          <option key={b} value={b}>
+            {b}
           </option>
         ))}
       </select>
