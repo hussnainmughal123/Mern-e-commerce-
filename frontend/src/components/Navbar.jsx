@@ -1,7 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
   const navigate = useNavigate();
+  const cart = useCart();
 
   const handleLogout = () => {
     onLogout();
@@ -24,9 +26,14 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
               Admin Dashboard
             </NavLink>
             {isLoggedIn && (
-              <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')}>
-                Profile
-              </NavLink>
+              <>
+                <NavLink to="/cart" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Cart{cart.itemCount > 0 ? ` (${cart.itemCount})` : ''}
+                </NavLink>
+                <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Profile
+                </NavLink>
+              </>
             )}
             {!isLoggedIn && (
               <>
