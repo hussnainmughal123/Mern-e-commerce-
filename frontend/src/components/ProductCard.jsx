@@ -1,9 +1,34 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 
 const ProductCard = ({ product }) => {
   const outOfStock = product.stock <= 0;
+  const cart = useCart();
+  const navigate = useNavigate();
+  const [adding, setAdding] = useState(false);
+
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isLoggedIn = Boolean(localStorage.getItem('token'));
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    setAdding(true);
+    try {
+      await cart.addItem(product._id, 1);
+    } catch {
+      // Silently ignore; a full error UI is shown on the cart page itself
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <Link to={`/products/${product._id}`} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -29,6 +54,15 @@ const ProductCard = ({ product }) => {
             {outOfStock ? 'Unavailable' : `${product.stock} in stock`}
           </span>
         </div>
+        <button
+          type="button"
+          className="btn btn-primary btn-small"
+          style={{ marginTop: 10, width: '100%' }}
+          onClick={handleAddToCart}
+          disabled={outOfStock || adding}
+        >
+          {adding ? 'Adding...' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
+        </button>
       </div>
     </Link>
   );
