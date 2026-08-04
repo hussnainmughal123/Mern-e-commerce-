@@ -260,6 +260,27 @@ body {
   background: var(--color-danger);
 }
 
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.wishlist-btn:disabled {
+  opacity: 0.6;
+}
+
 .product-card-body {
   padding: 14px 16px 16px;
   display: flex;
