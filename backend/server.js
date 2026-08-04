@@ -8,25 +8,19 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
 const app = express();
 
-// Render sits behind a reverse proxy; trust the first hop so express-rate-limit
-// and req.ip see the real client IP instead of throwing X-Forwarded-For warnings.
 app.set('trust proxy', 1);
 
-// Connect to MongoDB
 connectDB();
 
-// Security headers
 app.use(helmet());
 
-// Request logging (concise in production, verbose in development)
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-// CORS: supports a comma-separated list of allowed origins via CLIENT_ORIGIN,
-// e.g. CLIENT_ORIGIN=https://myapp.vercel.app,http://localhost:5173
 const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
   .split(',')
   .map((o) => o.trim())
@@ -35,7 +29,6 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, server-to-server)
       if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
@@ -46,7 +39,6 @@ app.use(
 
 app.use(express.json({ limit: '1mb' }));
 
-// Basic rate limiting to protect against abuse (100 requests / 15 min per IP)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -56,17 +48,15 @@ const apiLimiter = rateLimit({
 });
 app.use('/api', apiLimiter);
 
-// Health check
 app.get('/', (req, res) => {
   res.json({ message: 'Ecommerce Dashboard API is running' });
 });
 
-// Routes
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
-// Error handling (must be last)
 app.use(notFound);
 app.use(errorHandler);
 
