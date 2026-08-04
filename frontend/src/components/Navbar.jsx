@@ -1,9 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
   const navigate = useNavigate();
   const cart = useCart();
+  const wishlist = useWishlist();
 
   const handleLogout = () => {
     onLogout();
@@ -27,6 +29,9 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
             </NavLink>
             {isLoggedIn && (
               <>
+                <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Wishlist{wishlist.items.length > 0 ? ` (${wishlist.items.length})` : ''}
+                </NavLink>
                 <NavLink to="/cart" className={({ isActive }) => (isActive ? 'active' : '')}>
                   Cart{cart.itemCount > 0 ? ` (${cart.itemCount})` : ''}
                 </NavLink>
