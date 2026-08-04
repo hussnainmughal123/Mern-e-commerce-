@@ -1,20 +1,25 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 
 const ProductCard = ({ product }) => {
   const outOfStock = product.stock <= 0;
   const cart = useCart();
+  const wishlist = useWishlist();
   const navigate = useNavigate();
   const [adding, setAdding] = useState(false);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
+
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
+  const wishlisted = wishlist?.isWishlisted(product._id);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const isLoggedIn = Boolean(localStorage.getItem('token'));
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -30,6 +35,25 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const handleToggleWishlist = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    setTogglingWishlist(true);
+    try {
+      await wishlist.toggleItem(product._id);
+    } catch {
+      // Silently ignore for now
+    } finally {
+      setTogglingWishlist(false);
+    }
+  };
+
   return (
     <Link to={`/products/${product._id}`} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
       <div className="product-card-img">
@@ -42,6 +66,15 @@ const ProductCard = ({ product }) => {
           }}
         />
         {outOfStock && <span className="badge badge-danger">Out of stock</span>}
+        <button
+          type="button"
+          className="wishlist-btn"
+          onClick={handleToggleWishlist}
+          disabled={togglingWishlist}
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          {wishlisted ? '❤️' : '🤍'}
+        </button>
       </div>
       <div className="product-card-body">
         <span className="category-tag">{product.category}</span>
