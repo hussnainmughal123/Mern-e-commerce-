@@ -10,9 +10,15 @@ const EMPTY_FORM = {
   stock: "",
 };
 
+// Cloudinary unsigned upload config — see /mnt/skills or project notes for setup details
+const CLOUDINARY_CLOUD_NAME = "esfameei";
+const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+
 const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -29,6 +35,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       setForm(EMPTY_FORM);
     }
     setErrors({});
+    setUploadError("");
   }, [initialData]);
 
   const validate = () => {
@@ -45,14 +52,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     else if (form.description.trim().length > 500)
       newErrors.description = "Description must be under 500 characters.";
 
-    if (!form.imageUrl.trim()) newErrors.imageUrl = "Image URL is required.";
-    else {
-      try {
-        new URL(form.imageUrl);
-      } catch {
-        newErrors.imageUrl = "Enter a valid URL (e.g. https://...).";
-      }
-    }
+    if (!form.imageUrl.trim()) newErrors.imageUrl = "Please upload a product photo.";
 
     if (form.stock === "" || isNaN(form.stock)) newErrors.stock = "Enter a valid stock quantity.";
     else if (Number(form.stock) < 0) newErrors.stock = "Stock cannot be negative.";
@@ -65,6 +65,47 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError("Image must be under 10MB.");
+      return;
+    }
+
+    setUploadError("");
+    setUploading(true);
+
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        { method: "POST", body: data }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result?.error?.message || "Upload failed. Please try again.");
+      }
+
+      handleChange("imageUrl", result.secure_url);
+    } catch (err) {
+      setUploadError(err.message || "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = (e) => {
@@ -150,15 +191,28 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="imageUrl">Image URL *</label>
+        <label htmlFor="photo">Product Photo *</label>
+
+        {form.imageUrl && (
+          <div style={{ marginBottom: 10 }}>
+            <img
+              src={form.imageUrl}
+              alt="Product preview"
+              style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8 }}
+            />
+          </div>
+        )}
+
         <input
-          id="imageUrl"
-          type="text"
-          placeholder="https://example.com/image.jpg"
-          value={form.imageUrl}
-          onChange={(e) => handleChange("imageUrl", e.target.value)}
-          className={errors.imageUrl ? "input-error" : ""}
+          id="photo"
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoSelect}
+          disabled={uploading}
         />
+
+        {uploading && <span className="field-error" style={{ color: "var(--color-text-muted)" }}>Uploading photo...</span>}
+        {uploadError && <span className="field-error">{uploadError}</span>}
         {errors.imageUrl && <span className="field-error">{errors.imageUrl}</span>}
       </div>
 
@@ -180,7 +234,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={submitting}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
+        <button type="submit" className="btn btn-primary" disabled={submitting || uploading}>
           {submitting ? "Saving..." : initialData ? "Update Product" : "Add Product"}
         </button>
       </div>
