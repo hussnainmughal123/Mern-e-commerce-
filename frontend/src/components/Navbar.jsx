@@ -35,6 +35,9 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
                 <NavLink to="/cart" className={({ isActive }) => (isActive ? 'active' : '')}>
                   Cart{cart.itemCount > 0 ? ` (${cart.itemCount})` : ''}
                 </NavLink>
+                <NavLink to="/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
+                  Orders
+                </NavLink>
                 <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')}>
                   Profile
                 </NavLink>
