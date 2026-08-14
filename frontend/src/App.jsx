@@ -15,6 +15,8 @@ import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
 import CartPage from './pages/Cart';
 import WishlistPage from './pages/Wishlist';
+import Checkout from './pages/Checkout';
+import OrderHistory from './pages/OrderHistory';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -76,6 +78,22 @@ function App() {
                 element={
                   <ProtectedRoute isLoggedIn={isLoggedIn}>
                     <WishlistPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn}>
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn}>
+                    <OrderHistory />
                   </ProtectedRoute>
                 }
               />
