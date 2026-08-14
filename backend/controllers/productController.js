@@ -2,11 +2,11 @@ const Product = require('../models/Product');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 
-// @desc    Get all products (supports search, category/brand filter, sorting, pagination)
-// @route   GET /api/products?search=&category=&brand=&sort=&page=&limit=
+// @desc    Get all products (supports search, category/brand/rating filter, sorting, pagination)
+// @route   GET /api/products?search=&category=&brand=&minRating=&sort=&page=&limit=
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const { search, category, brand, sort, page = 1, limit = 12 } = req.query;
+  const { search, category, brand, minRating, sort, page = 1, limit = 12 } = req.query;
 
   const query = {};
 
@@ -22,6 +22,10 @@ const getProducts = asyncHandler(async (req, res) => {
     query.brand = brand;
   }
 
+  if (minRating) {
+    query.averageRating = { $gte: Number(minRating) };
+  }
+
   const sortOptions = {
     newest: { createdAt: -1 },
     oldest: { createdAt: 1 },
@@ -29,6 +33,7 @@ const getProducts = asyncHandler(async (req, res) => {
     price_desc: { price: -1 },
     name_asc: { name: 1 },
     name_desc: { name: -1 },
+    rating_desc: { averageRating: -1 },
   };
   const sortBy = sortOptions[sort] || sortOptions.newest;
 
