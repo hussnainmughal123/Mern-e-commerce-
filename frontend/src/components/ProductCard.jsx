@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import StarRating from './StarRating';
 
 const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 
@@ -80,6 +81,14 @@ const ProductCard = ({ product }) => {
         <span className="category-tag">{product.category}</span>
         <h3 title={product.name}>{product.name}</h3>
         {product.brand && <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>{product.brand}</p>}
+        {product.numReviews > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, margin: '2px 0' }}>
+            <StarRating rating={product.averageRating} size={14} />
+            <span style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
+              {product.averageRating.toFixed(1)} ({product.numReviews})
+            </span>
+          </div>
+        )}
         <p className="description">{product.description}</p>
         <div className="product-card-footer">
           <span className="price">${Number(product.price).toFixed(2)}</span>
