@@ -27,6 +27,9 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
             <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')}>
               Admin Dashboard
             </NavLink>
+            <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
+              Manage Orders
+            </NavLink>
             {isLoggedIn && (
               <>
                 <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')}>
