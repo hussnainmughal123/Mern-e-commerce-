@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getProduct } from '../api/api';
+import { getProduct, getProducts } from '../api/api';
 import { getProductReviews, submitReview, deleteReview } from '../api/reviewApi';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import { addToRecentlyViewed, getRecentlyViewed } from '../utils/recentlyViewed';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
 import StarRating from '../components/StarRating';
+import ProductCard from '../components/ProductCard';
+import RecentlyViewedCard from '../components/RecentlyViewedCard';
 
 const FALLBACK_IMG = 'https://via.placeholder.com/500x400.png?text=No+Image';
 
@@ -30,6 +33,9 @@ const ProductDetails = () => {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
 
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+
   const isLoggedIn = Boolean(localStorage.getItem('token'));
   const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -40,6 +46,12 @@ const ProductDetails = () => {
       const data = await getProduct(id);
       setProduct(data);
       setQuantity(1);
+
+      addToRecentlyViewed(data);
+      setRecentlyViewed(getRecentlyViewed(data._id));
+
+      const related = await getProducts({ category: data.category, limit: 5 });
+      setRelatedProducts(related.products.filter((p) => p._id !== data._id).slice(0, 4));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -318,6 +330,28 @@ const ProductDetails = () => {
             ))}
         </div>
       </div>
+
+      {relatedProducts.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h2>You May Also Like</h2>
+          <div className="product-grid">
+            {relatedProducts.map((p) => (
+              <ProductCard key={p._id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {recentlyViewed.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h2>Recently Viewed</h2>
+          <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
+            {recentlyViewed.map((p) => (
+              <RecentlyViewedCard key={p._id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
