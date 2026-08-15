@@ -115,4 +115,57 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: order });
 });
 
-module.exports = { createOrder, getMyOrders, getOrder, getAllOrders, updateOrderStatus };
+// @desc    Get sales/order analytics — revenue, order counts by status, last 7 days trend
+// @route   GET /api/orders/stats/summary
+// @access  Admin
+const getOrderStats = asyncHandler(async (req, res) => {
+  const allOrders = await Order.find({});
+
+  const totalOrders = allOrders.length;
+  const totalRevenue = allOrders
+    .filter((o) => o.status !== 'cancelled')
+    .reduce((sum, o) => sum + o.totalAmount, 0);
+
+  const ordersByStatus = { pending: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 };
+  allOrders.forEach((o) => {
+    if (ordersByStatus[o.status] !== undefined) ordersByStatus[o.status] += 1;
+  });
+
+  // Build a revenue/order-count trend for the last 7 days (including days with zero orders)
+  const days = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - i);
+    days.push(date);
+  }
+
+  const last7Days = days.map((day) => {
+    const nextDay = new Date(day);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const dayOrders = allOrders.filter(
+      (o) => o.createdAt >= day && o.createdAt < nextDay && o.status !== 'cancelled'
+    );
+
+    return {
+      date: day.toISOString().slice(0, 10),
+      revenue: dayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+      orders: dayOrders.length,
+    };
+  });
+
+  res.status(200).json({
+    success: true,
+    data: { totalOrders, totalRevenue, ordersByStatus, last7Days },
+  });
+});
+
+module.exports = {
+  createOrder,
+  getMyOrders,
+  getOrder,
+  getAllOrders,
+  updateOrderStatus,
+  getOrderStats,
+};
