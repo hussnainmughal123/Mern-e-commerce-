@@ -8,6 +8,7 @@ import PublicProducts from './pages/PublicProducts';
 import ProductDetails from './pages/ProductDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrders from './pages/AdminOrders';
+import AdminAnalytics from './pages/AdminAnalytics';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -63,6 +64,14 @@ function App() {
                 element={
                   <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
                     <AdminOrders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
+                    <AdminAnalytics />
                   </ProtectedRoute>
                 }
               />
