@@ -30,6 +30,9 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
             <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
               Manage Orders
             </NavLink>
+            <NavLink to="/admin/analytics" className={({ isActive }) => (isActive ? 'active' : '')}>
+              Analytics
+            </NavLink>
             {isLoggedIn && (
               <>
                 <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')}>
