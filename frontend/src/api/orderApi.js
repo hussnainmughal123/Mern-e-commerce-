@@ -29,3 +29,22 @@ export const getOrder = async (id) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const getAllOrders = async (status = '') => {
+  try {
+    const params = status && status !== 'All' ? { status } : {};
+    const { data } = await api.get('/orders', { params });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const updateOrderStatus = async (id, status) => {
+  try {
+    const { data } = await api.put(`/orders/${id}/status`, { status });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
