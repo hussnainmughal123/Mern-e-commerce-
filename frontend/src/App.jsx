@@ -7,6 +7,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import PublicProducts from './pages/PublicProducts';
 import ProductDetails from './pages/ProductDetails';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminOrders from './pages/AdminOrders';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -54,6 +55,14 @@ function App() {
                 element={
                   <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
                     <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
+                    <AdminOrders />
                   </ProtectedRoute>
                 }
               />
