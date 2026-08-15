@@ -28,12 +28,21 @@ api.interceptors.response.use(
 const getErrorMessage = (error) =>
   error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
 
-export const getProducts = async ({ search = '', category = '', brand = '', sort = '', page = 1, limit = 12 } = {}) => {
+export const getProducts = async ({
+  search = '',
+  category = '',
+  brand = '',
+  minRating = '',
+  sort = '',
+  page = 1,
+  limit = 12,
+} = {}) => {
   try {
     const params = { page, limit };
     if (search) params.search = search;
     if (category && category !== 'All') params.category = category;
     if (brand && brand !== 'All') params.brand = brand;
+    if (minRating) params.minRating = minRating;
     if (sort) params.sort = sort;
     const { data } = await api.get('/products', { params });
     return { products: data.data, total: data.total, page: data.page, totalPages: data.totalPages };
