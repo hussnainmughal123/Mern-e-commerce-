@@ -48,3 +48,12 @@ export const updateOrderStatus = async (id, status) => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const getOrderStats = async () => {
+  try {
+    const { data } = await api.get('/orders/stats/summary');
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
