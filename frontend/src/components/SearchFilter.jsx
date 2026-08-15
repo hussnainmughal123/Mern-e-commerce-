@@ -7,6 +7,8 @@ const SearchFilter = ({
   brand,
   setBrand,
   brands,
+  minRating,
+  setMinRating,
   sort,
   setSort,
 }) => {
@@ -47,6 +49,18 @@ const SearchFilter = ({
         ))}
       </select>
       <select
+        value={minRating}
+        onChange={(e) => setMinRating(e.target.value)}
+        aria-label="Filter by minimum rating"
+        className="category-select"
+      >
+        <option value="">Any Rating</option>
+        <option value="4">4★ & up</option>
+        <option value="3">3★ & up</option>
+        <option value="2">2★ & up</option>
+        <option value="1">1★ & up</option>
+      </select>
+      <select
         value={sort}
         onChange={(e) => setSort(e.target.value)}
         aria-label="Sort products"
@@ -57,6 +71,7 @@ const SearchFilter = ({
         <option value="price_desc">Price: High to Low</option>
         <option value="name_asc">Name: A to Z</option>
         <option value="name_desc">Name: Z to A</option>
+        <option value="rating_desc">Highest Rated</option>
       </select>
     </div>
   );
