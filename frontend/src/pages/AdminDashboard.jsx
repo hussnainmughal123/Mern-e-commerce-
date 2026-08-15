@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getProducts,
   createProduct,
   updateProduct,
   deleteProduct,
+  bulkDeleteProducts,
   getStats,
 } from '../api/api';
 import StatsCards from '../components/StatsCards';
@@ -12,6 +13,8 @@ import ProductForm from '../components/ProductForm';
 import Modal from '../components/Modal';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
+
+const LOW_STOCK_THRESHOLD = 5;
 
 const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
@@ -27,6 +30,10 @@ const AdminDashboard = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [confirmingBulkDelete, setConfirmingBulkDelete] = useState(false);
+
   const [toast, setToast] = useState('');
 
   const loadData = useCallback(async () => {
@@ -39,6 +46,7 @@ const AdminDashboard = () => {
       ]);
       setProducts(productData.products);
       setStats(statsData);
+      setSelectedIds([]);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -55,6 +63,11 @@ const AdminDashboard = () => {
     const timeout = setTimeout(() => setToast(''), 2500);
     return () => clearTimeout(timeout);
   }, [toast]);
+
+  const lowStockProducts = useMemo(
+    () => products.filter((p) => p.stock > 0 && p.stock <= LOW_STOCK_THRESHOLD),
+    [products]
+  );
 
   const openAddForm = () => {
     setEditingProduct(null);
@@ -110,6 +123,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const toggleSelectAll = (checked) => {
+    setSelectedIds(checked ? products.map((p) => p._id) : []);
+  };
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      await bulkDeleteProducts(selectedIds);
+      setToast(`${selectedIds.length} product(s) deleted.`);
+      setConfirmingBulkDelete(false);
+      await loadData();
+    } catch (err) {
+      setError(err.message);
+      setConfirmingBulkDelete(false);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <div className="page-container">
       <div className="page-header admin-header">
@@ -131,10 +167,45 @@ const AdminDashboard = () => {
         <>
           <StatsCards stats={stats} />
 
-          <div className="section-title">
+          {lowStockProducts.length > 0 && (
+            <div
+              style={{
+                background: 'rgba(245, 166, 35, 0.12)',
+                border: '1px solid #f5a623',
+                borderRadius: 10,
+                padding: '12px 16px',
+                margin: '16px 0',
+              }}
+            >
+              <strong>⚠️ Low Stock Alert:</strong> {lowStockProducts.length} product
+              {lowStockProducts.length !== 1 ? 's are' : ' is'} running low (≤ {LOW_STOCK_THRESHOLD} units) —{' '}
+              {lowStockProducts.map((p) => p.name).join(', ')}
+            </div>
+          )}
+
+          <div
+            className="section-title"
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}
+          >
             <h2>All Products</h2>
+            {selectedIds.length > 0 && (
+              <button
+                className="btn btn-danger btn-small"
+                onClick={() => setConfirmingBulkDelete(true)}
+                disabled={bulkDeleting}
+              >
+                Delete Selected ({selectedIds.length})
+              </button>
+            )}
           </div>
-          <ProductTable products={products} onEdit={openEditForm} onDelete={setDeleteTarget} />
+          <ProductTable
+            products={products}
+            onEdit={openEditForm}
+            onDelete={setDeleteTarget}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onToggleSelectAll={toggleSelectAll}
+          />
         </>
       )}
 
@@ -166,6 +237,27 @@ const AdminDashboard = () => {
             </button>
             <button className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
               {deleting ? 'Deleting...' : 'Delete'}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {confirmingBulkDelete && (
+        <Modal title="Delete Selected Products" onClose={() => setConfirmingBulkDelete(false)}>
+          <p>
+            Are you sure you want to delete <strong>{selectedIds.length}</strong> selected product(s)?
+            This action cannot be undone.
+          </p>
+          <div className="form-actions">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setConfirmingBulkDelete(false)}
+              disabled={bulkDeleting}
+            >
+              Cancel
+            </button>
+            <button className="btn btn-danger" onClick={handleBulkDelete} disabled={bulkDeleting}>
+              {bulkDeleting ? 'Deleting...' : 'Delete All Selected'}
             </button>
           </div>
         </Modal>
