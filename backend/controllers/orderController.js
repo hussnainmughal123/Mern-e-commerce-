@@ -81,4 +81,38 @@ const getOrder = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: order });
 });
 
-module.exports = { createOrder, getMyOrders, getOrder };
+// @desc    Get all orders across all customers, optionally filtered by status
+// @route   GET /api/orders?status=pending
+// @access  Admin
+const getAllOrders = asyncHandler(async (req, res) => {
+  const { status } = req.query;
+  const query = {};
+  if (status && status !== 'All') {
+    query.status = status;
+  }
+
+  const orders = await Order.find(query).populate('user', 'name email').sort({ createdAt: -1 });
+  res.status(200).json({ success: true, data: orders });
+});
+
+// @desc    Update an order's status
+// @route   PUT /api/orders/:id/status
+// @access  Admin
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+
+  if (!validStatuses.includes(status)) {
+    throw new ApiError(400, 'Invalid order status');
+  }
+
+  const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true, runValidators: true });
+
+  if (!order) {
+    throw new ApiError(404, 'Order not found');
+  }
+
+  res.status(200).json({ success: true, data: order });
+});
+
+module.exports = { createOrder, getMyOrders, getOrder, getAllOrders, updateOrderStatus };
