@@ -15,6 +15,7 @@ const PublicProducts = () => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [brand, setBrand] = useState('All');
+  const [minRating, setMinRating] = useState('');
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -23,7 +24,7 @@ const PublicProducts = () => {
     setLoading(true);
     setError('');
     try {
-      const data = await getProducts({ search, category, brand, sort, page, limit: 12 });
+      const data = await getProducts({ search, category, brand, minRating, sort, page, limit: 12 });
       setProducts(data.products);
       setTotalPages(data.totalPages || 1);
     } catch (err) {
@@ -31,7 +32,7 @@ const PublicProducts = () => {
     } finally {
       setLoading(false);
     }
-  }, [search, category, brand, sort, page]);
+  }, [search, category, brand, minRating, sort, page]);
 
   useEffect(() => {
     getCategories()
@@ -44,7 +45,7 @@ const PublicProducts = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, category, brand, sort]);
+  }, [search, category, brand, minRating, sort]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -77,6 +78,8 @@ const PublicProducts = () => {
         brand={brand}
         setBrand={setBrand}
         brands={sortedBrands}
+        minRating={minRating}
+        setMinRating={setMinRating}
         sort={sort}
         setSort={setSort}
       />
