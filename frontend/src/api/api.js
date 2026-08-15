@@ -87,6 +87,15 @@ export const deleteProduct = async (id) => {
   }
 };
 
+export const bulkDeleteProducts = async (ids) => {
+  try {
+    const { data } = await api.delete('/products/bulk', { data: { ids } });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const getStats = async () => {
   try {
     const { data } = await api.get('/products/stats/summary');
