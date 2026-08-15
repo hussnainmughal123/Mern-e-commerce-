@@ -109,6 +109,21 @@ const deleteProduct = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: {} });
 });
 
+// @desc    Delete multiple products at once
+// @route   DELETE /api/products/bulk
+// @access  Admin
+const bulkDeleteProducts = asyncHandler(async (req, res) => {
+  const { ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new ApiError(400, 'Please provide an array of product ids to delete');
+  }
+
+  const result = await Product.deleteMany({ _id: { $in: ids } });
+
+  res.status(200).json({ success: true, data: { deletedCount: result.deletedCount } });
+});
+
 // @desc    Get dashboard stats (total products, total categories, out of stock)
 // @route   GET /api/products/stats/summary
 // @access  Admin
@@ -149,6 +164,7 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  bulkDeleteProducts,
   getStats,
   getCategories,
   getBrands,
