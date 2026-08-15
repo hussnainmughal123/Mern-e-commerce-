@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getProduct } from '../api/api';
+import { getProductReviews, submitReview, deleteReview } from '../api/reviewApi';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import Loader from '../components/Loader';
 import ErrorMessage from '../components/ErrorMessage';
+import StarRating from '../components/StarRating';
 
 const FALLBACK_IMG = 'https://via.placeholder.com/500x400.png?text=No+Image';
 
@@ -21,6 +23,16 @@ const ProductDetails = () => {
   const [togglingWishlist, setTogglingWishlist] = useState(false);
   const [addedMessage, setAddedMessage] = useState('');
 
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [myRating, setMyRating] = useState(0);
+  const [myComment, setMyComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
+  const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+
   const loadProduct = async () => {
     setLoading(true);
     setError('');
@@ -35,12 +47,31 @@ const ProductDetails = () => {
     }
   };
 
+  const loadReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const data = await getProductReviews(id);
+      setReviews(data);
+      const mine = currentUser && data.find((r) => r.user === currentUser._id);
+      if (mine) {
+        setMyRating(mine.rating);
+        setMyComment(mine.comment);
+      } else {
+        setMyRating(0);
+        setMyComment('');
+      }
+    } catch {
+      // Non-critical; leave the reviews list empty on failure
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadProduct();
+    loadReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  const isLoggedIn = Boolean(localStorage.getItem('token'));
 
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
@@ -76,6 +107,47 @@ const ProductDetails = () => {
     }
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setReviewError('');
+
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+    if (myRating < 1) {
+      setReviewError('Please select a star rating.');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      await submitReview(id, myRating, myComment.trim());
+      await loadReviews();
+      await loadProduct();
+    } catch (err) {
+      setReviewError(err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    setSubmittingReview(true);
+    setReviewError('');
+    try {
+      await deleteReview(id);
+      setMyRating(0);
+      setMyComment('');
+      await loadReviews();
+      await loadProduct();
+    } catch (err) {
+      setReviewError(err.message);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="page-container">
@@ -96,6 +168,7 @@ const ProductDetails = () => {
 
   const outOfStock = product.stock <= 0;
   const wishlisted = wishlist?.isWishlisted(product._id);
+  const hasMyReview = currentUser && reviews.some((r) => r.user === currentUser._id);
 
   return (
     <div className="page-container">
@@ -131,6 +204,16 @@ const ProductDetails = () => {
           {product.brand && (
             <p style={{ margin: '-6px 0 6px', color: 'var(--color-text-muted)' }}>Brand: {product.brand}</p>
           )}
+
+          {product.numReviews > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <StarRating rating={product.averageRating} size={18} />
+              <span style={{ color: 'var(--color-text-muted)' }}>
+                {product.averageRating.toFixed(1)} ({product.numReviews} review{product.numReviews !== 1 ? 's' : ''})
+              </span>
+            </div>
+          )}
+
           <p className="price" style={{ fontSize: '1.6rem' }}>
             ${Number(product.price).toFixed(2)}
           </p>
@@ -170,6 +253,69 @@ const ProductDetails = () => {
               </button>
             </div>
           )}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 40 }}>
+        <h2>Reviews {product.numReviews > 0 && `(${product.numReviews})`}</h2>
+
+        <div className="product-form" style={{ maxWidth: 500, marginTop: 12 }}>
+          <p style={{ margin: '0 0 8px', fontWeight: 600 }}>
+            {hasMyReview ? 'Your review' : 'Write a review'}
+          </p>
+          <StarRating rating={myRating} interactive size={26} onChange={setMyRating} />
+          <textarea
+            rows={3}
+            maxLength={500}
+            placeholder="Share your thoughts about this product (optional)"
+            value={myComment}
+            onChange={(e) => setMyComment(e.target.value)}
+            style={{ marginTop: 10 }}
+          />
+          {reviewError && <span className="field-error">{reviewError}</span>}
+          <div className="form-actions" style={{ justifyContent: 'flex-start', gap: 10 }}>
+            <button
+              type="button"
+              className="btn btn-primary btn-small"
+              onClick={handleSubmitReview}
+              disabled={submittingReview}
+            >
+              {submittingReview ? 'Saving...' : hasMyReview ? 'Update Review' : 'Submit Review'}
+            </button>
+            {hasMyReview && (
+              <button
+                type="button"
+                className="btn btn-danger btn-small"
+                onClick={handleDeleteReview}
+                disabled={submittingReview}
+              >
+                Delete Review
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {reviewsLoading && <Loader label="Loading reviews..." />}
+          {!reviewsLoading && reviews.length === 0 && (
+            <p className="empty-state">No reviews yet. Be the first to review this product!</p>
+          )}
+          {!reviewsLoading &&
+            reviews.map((review) => (
+              <div
+                key={review._id}
+                style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: 14 }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+                  <strong>{review.userName}</strong>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <StarRating rating={review.rating} size={15} />
+                {review.comment && <p style={{ marginTop: 6 }}>{review.comment}</p>}
+              </div>
+            ))}
         </div>
       </div>
     </div>
