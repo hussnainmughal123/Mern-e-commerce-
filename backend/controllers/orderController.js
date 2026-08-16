@@ -1,13 +1,15 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
+const Coupon = require('../models/Coupon');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { validateCouponForOrder } = require('../utils/validateCoupon');
 
 // @desc    Create an order from the current cart, then clear the cart
 // @route   POST /api/orders
 // @access  Private
 const createOrder = asyncHandler(async (req, res) => {
-  const { shippingAddress } = req.body;
+  const { shippingAddress, couponCode } = req.body;
 
   if (!shippingAddress) {
     throw new ApiError(400, 'Shipping address is required');
@@ -40,14 +42,33 @@ const createOrder = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Your cart items are no longer available');
   }
 
-  const totalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  let discountAmount = 0;
+  let appliedCoupon = null;
+
+  if (couponCode) {
+    const result = await validateCouponForOrder(couponCode, subtotal);
+    appliedCoupon = result.coupon;
+    discountAmount = result.discountAmount;
+  }
+
+  const totalAmount = Math.max(subtotal - discountAmount, 0);
 
   const order = await Order.create({
     user: req.user._id,
     items: orderItems,
     shippingAddress,
+    subtotal,
+    couponCode: appliedCoupon ? appliedCoupon.code : null,
+    discountAmount,
     totalAmount,
   });
+
+  if (appliedCoupon) {
+    appliedCoupon.usedCount += 1;
+    await appliedCoupon.save();
+  }
 
   // Empty the cart now that the order has been placed
   cart.items = [];
@@ -131,7 +152,6 @@ const getOrderStats = asyncHandler(async (req, res) => {
     if (ordersByStatus[o.status] !== undefined) ordersByStatus[o.status] += 1;
   });
 
-  // Build a revenue/order-count trend for the last 7 days (including days with zero orders)
   const days = [];
   for (let i = 6; i >= 0; i -= 1) {
     const date = new Date();
