@@ -19,6 +19,7 @@ const ProductDetails = () => {
   const cart = useCart();
   const wishlist = useWishlist();
   const [product, setProduct] = useState(null);
+  const [selectedImage, setSelectedImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -45,6 +46,7 @@ const ProductDetails = () => {
     try {
       const data = await getProduct(id);
       setProduct(data);
+      setSelectedImage(data.imageUrl);
       setQuantity(1);
 
       addToRecentlyViewed(data);
@@ -189,25 +191,61 @@ const ProductDetails = () => {
       </Link>
 
       <div className="details-grid">
-        <div className="details-image">
-          <img
-            src={product.imageUrl || FALLBACK_IMG}
-            alt={product.name}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = FALLBACK_IMG;
-            }}
-          />
-          {outOfStock && <span className="badge badge-danger">Out of stock</span>}
-          <button
-            type="button"
-            className="wishlist-btn"
-            onClick={handleToggleWishlist}
-            disabled={togglingWishlist}
-            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          >
-            {wishlisted ? '❤️' : '🤍'}
-          </button>
+        <div>
+          <div className="details-image">
+            <img
+              src={selectedImage || product.imageUrl || FALLBACK_IMG}
+              alt={product.name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = FALLBACK_IMG;
+              }}
+            />
+            {outOfStock && <span className="badge badge-danger">Out of stock</span>}
+            <button
+              type="button"
+              className="wishlist-btn"
+              onClick={handleToggleWishlist}
+              disabled={togglingWishlist}
+              aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              {wishlisted ? '❤️' : '🤍'}
+            </button>
+          </div>
+
+          {[product.imageUrl, ...(product.images || [])].filter(Boolean).length > 1 && (
+            <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              {[product.imageUrl, ...(product.images || [])]
+                .filter(Boolean)
+                .map((url, idx) => (
+                  <button
+                    key={url + idx}
+                    type="button"
+                    onClick={() => setSelectedImage(url)}
+                    style={{
+                      padding: 0,
+                      border:
+                        selectedImage === url
+                          ? '2px solid var(--color-primary)'
+                          : '2px solid var(--color-border)',
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      width: 60,
+                      height: 60,
+                      flexShrink: 0,
+                    }}
+                    aria-label={`View photo ${idx + 1}`}
+                  >
+                    <img
+                      src={url}
+                      alt={`${product.name} thumbnail ${idx + 1}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </button>
+                ))}
+            </div>
+          )}
         </div>
 
         <div className="details-info">
