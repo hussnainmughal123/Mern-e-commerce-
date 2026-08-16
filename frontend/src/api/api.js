@@ -51,6 +51,15 @@ export const getProducts = async ({
   }
 };
 
+export const getSearchSuggestions = async (query) => {
+  try {
+    const { data } = await api.get('/products/search/suggestions', { params: { q: query } });
+    return data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const getProduct = async (id) => {
   try {
     const { data } = await api.get(`/products/${id}`);
