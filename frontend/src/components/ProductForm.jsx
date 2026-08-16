@@ -8,6 +8,7 @@ const EMPTY_FORM = {
   description: "",
   imageUrl: "",
   images: [],
+  variants: [],
   stock: "",
 };
 
@@ -50,6 +51,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         description: initialData.description || "",
         imageUrl: initialData.imageUrl || "",
         images: initialData.images || [],
+        variants: initialData.variants || [],
         stock: initialData.stock ?? "",
       });
     } else {
@@ -150,9 +152,39 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
 
+  const addVariantGroup = () => {
+    setForm((prev) => ({ ...prev, variants: [...prev.variants, { name: "", options: [] }] }));
+  };
+
+  const removeVariantGroup = (index) => {
+    setForm((prev) => ({ ...prev, variants: prev.variants.filter((_, i) => i !== index) }));
+  };
+
+  const updateVariantName = (index, name) => {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) => (i === index ? { ...v, name } : v)),
+    }));
+  };
+
+  const updateVariantOptions = (index, optionsText) => {
+    const options = optionsText
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) => (i === index ? { ...v, options } : v)),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    const cleanedVariants = form.variants
+      .filter((v) => v.name.trim() && v.options.length > 0)
+      .map((v) => ({ name: v.name.trim(), options: v.options }));
+
     onSubmit({
       name: form.name.trim(),
       category: form.category.trim(),
@@ -161,6 +193,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       description: form.description.trim(),
       imageUrl: form.imageUrl.trim(),
       images: form.images,
+      variants: cleanedVariants,
       stock: Number(form.stock),
     });
   };
@@ -306,6 +339,47 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
           </span>
         )}
         {galleryError && <span className="field-error">{galleryError}</span>}
+      </div>
+
+      <div className="form-group">
+        <label>Variants (optional — e.g. Size, Color)</label>
+        {form.variants.map((variant, idx) => (
+          <div
+            key={idx}
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+              marginBottom: 8,
+              flexWrap: "wrap",
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Variant name (e.g. Size)"
+              value={variant.name}
+              onChange={(e) => updateVariantName(idx, e.target.value)}
+              style={{ flex: "1 1 140px" }}
+            />
+            <input
+              type="text"
+              placeholder="Options, comma separated (e.g. Small, Medium, Large)"
+              value={variant.options.join(", ")}
+              onChange={(e) => updateVariantOptions(idx, e.target.value)}
+              style={{ flex: "2 1 220px" }}
+            />
+            <button
+              type="button"
+              className="btn btn-danger btn-small"
+              onClick={() => removeVariantGroup(idx)}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        <button type="button" className="btn btn-secondary btn-small" onClick={addVariantGroup}>
+          + Add Variant Group
+        </button>
       </div>
 
       <div className="form-group">
