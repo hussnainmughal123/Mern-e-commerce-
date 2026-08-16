@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   getProducts,
+  getSearchSuggestions,
   getProduct,
   createProduct,
   updateProduct,
@@ -17,6 +18,7 @@ const { protect, adminOnly } = require('../middleware/auth');
 router.get('/stats/summary', protect, adminOnly, getStats);
 router.get('/categories/list', getCategories);
 router.get('/brands/list', getBrands);
+router.get('/search/suggestions', getSearchSuggestions);
 router.delete('/bulk', protect, adminOnly, bulkDeleteProducts);
 
 router.route('/').get(getProducts).post(protect, adminOnly, createProduct);
