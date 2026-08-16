@@ -12,27 +12,27 @@ export const getCart = async () => {
   }
 };
 
-export const addToCart = async (productId, quantity = 1) => {
+export const addToCart = async (productId, quantity = 1, selectedVariant = '') => {
   try {
-    const { data } = await api.post('/cart', { productId, quantity });
+    const { data } = await api.post('/cart', { productId, quantity, selectedVariant });
     return data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 };
 
-export const updateCartItem = async (productId, quantity) => {
+export const updateCartItem = async (itemId, quantity) => {
   try {
-    const { data } = await api.put(`/cart/${productId}`, { quantity });
+    const { data } = await api.put(`/cart/${itemId}`, { quantity });
     return data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
 };
 
-export const removeFromCart = async (productId) => {
+export const removeFromCart = async (itemId) => {
   try {
-    const { data } = await api.delete(`/cart/${productId}`);
+    const { data } = await api.delete(`/cart/${itemId}`);
     return data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
