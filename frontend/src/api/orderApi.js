@@ -3,9 +3,11 @@ import api from './api';
 const getErrorMessage = (error) =>
   error?.response?.data?.message || error?.message || 'Something went wrong. Please try again.';
 
-export const createOrder = async (shippingAddress) => {
+export const createOrder = async (shippingAddress, couponCode) => {
   try {
-    const { data } = await api.post('/orders', { shippingAddress });
+    const payload = { shippingAddress };
+    if (couponCode) payload.couponCode = couponCode;
+    const { data } = await api.post('/orders', payload);
     return data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
