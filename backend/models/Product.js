@@ -1,5 +1,16 @@
 const mongoose = require('mongoose');
 
+const variantGroupSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true }, // e.g. "Size", "Color"
+    options: {
+      type: [String],
+      validate: [(opts) => opts.length > 0, 'A variant must have at least one option'],
+    },
+  },
+  { _id: false }
+);
+
 const productSchema = new mongoose.Schema(
   {
     name: {
@@ -37,6 +48,10 @@ const productSchema = new mongoose.Schema(
     },
     images: {
       type: [String],
+      default: [],
+    },
+    variants: {
+      type: [variantGroupSchema],
       default: [],
     },
     stock: {
