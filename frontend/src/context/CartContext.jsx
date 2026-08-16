@@ -29,18 +29,18 @@ export const CartProvider = ({ isLoggedIn, children }) => {
     refreshCart();
   }, [refreshCart]);
 
-  const addItem = async (productId, quantity = 1) => {
-    const data = await cartApi.addToCart(productId, quantity);
+  const addItem = async (productId, quantity = 1, selectedVariant = '') => {
+    const data = await cartApi.addToCart(productId, quantity, selectedVariant);
     setCart(data);
   };
 
-  const updateItem = async (productId, quantity) => {
-    const data = await cartApi.updateCartItem(productId, quantity);
+  const updateItem = async (itemId, quantity) => {
+    const data = await cartApi.updateCartItem(itemId, quantity);
     setCart(data);
   };
 
-  const removeItem = async (productId) => {
-    const data = await cartApi.removeFromCart(productId);
+  const removeItem = async (itemId) => {
+    const data = await cartApi.removeFromCart(itemId);
     setCart(data);
   };
 
