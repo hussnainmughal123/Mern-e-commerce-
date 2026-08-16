@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { createOrder } from '../api/orderApi';
+import { validateCoupon } from '../api/couponApi';
 import ErrorMessage from '../components/ErrorMessage';
 
 const EMPTY_ADDRESS = {
@@ -23,8 +24,15 @@ const Checkout = () => {
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState('');
 
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
   const items = cart.items.filter((item) => item.product);
-  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const discount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const total = Math.max(subtotal - discount, 0);
 
   const handleChange = (field, value) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
@@ -41,6 +49,30 @@ const Checkout = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleApplyCoupon = async () => {
+    setCouponError('');
+    if (!couponInput.trim()) {
+      setCouponError('Enter a coupon code.');
+      return;
+    }
+    setApplyingCoupon(true);
+    try {
+      const result = await validateCoupon(couponInput.trim(), subtotal);
+      setAppliedCoupon(result);
+    } catch (err) {
+      setAppliedCoupon(null);
+      setCouponError(err.message);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+  };
+
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setApiError('');
@@ -52,7 +84,7 @@ const Checkout = () => {
 
     setSubmitting(true);
     try {
-      const order = await createOrder(address);
+      const order = await createOrder(address, appliedCoupon ? appliedCoupon.code : undefined);
       await refreshCart();
       navigate('/orders', { state: { justPlacedOrderId: order._id } });
     } catch (err) {
@@ -216,9 +248,54 @@ const Checkout = () => {
               <span>${(item.product.price * item.quantity).toFixed(2)}</span>
             </div>
           ))}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-            <strong>Total</strong>
-            <strong>${total.toFixed(2)}</strong>
+
+          <div style={{ marginTop: 16 }}>
+            {!appliedCoupon ? (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  placeholder="Coupon code"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small"
+                  onClick={handleApplyCoupon}
+                  disabled={applyingCoupon}
+                >
+                  {applyingCoupon ? 'Checking...' : 'Apply'}
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--color-primary)' }}>
+                  ✓ Coupon <strong>{appliedCoupon.code}</strong> applied
+                </span>
+                <button type="button" className="btn btn-secondary btn-small" onClick={handleRemoveCoupon}>
+                  Remove
+                </button>
+              </div>
+            )}
+            {couponError && <span className="field-error">{couponError}</span>}
+          </div>
+
+          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            {discount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-primary)' }}>
+                <span>Discount</span>
+                <span>−${discount.toFixed(2)}</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
+              <strong>Total</strong>
+              <strong>${total.toFixed(2)}</strong>
+            </div>
           </div>
         </div>
       </div>
