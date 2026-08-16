@@ -1,199 +1,199 @@
-const Product = require('../models/Product');
+const Order = require('../models/Order');
+const Cart = require('../models/Cart');
+const Coupon = require('../models/Coupon');
+const Notification = require('../models/Notification');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { validateCouponForOrder } = require('../utils/validateCoupon');
 
-// @desc    Get all products (supports search, category/brand/rating filter, sorting, pagination)
-// @route   GET /api/products?search=&category=&brand=&minRating=&sort=&page=&limit=
-// @access  Public
-const getProducts = asyncHandler(async (req, res) => {
-  const { search, category, brand, minRating, sort, page = 1, limit = 12 } = req.query;
+// @desc    Create an order from the current cart, then clear the cart
+// @route   POST /api/orders
+// @access  Private
+const createOrder = asyncHandler(async (req, res) => {
+  const { shippingAddress, couponCode } = req.body;
 
+  if (!shippingAddress) {
+    throw new ApiError(400, 'Shipping address is required');
+  }
+
+  const requiredFields = ['fullName', 'addressLine1', 'city', 'state', 'postalCode', 'country', 'phone'];
+  for (const field of requiredFields) {
+    if (!shippingAddress[field]) {
+      throw new ApiError(400, `Shipping address is missing required field: ${field}`);
+    }
+  }
+
+  const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+
+  if (!cart || cart.items.length === 0) {
+    throw new ApiError(400, 'Your cart is empty');
+  }
+
+  const orderItems = cart.items
+    .filter((item) => item.product) // guard against deleted products
+    .map((item) => ({
+      product: item.product._id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      imageUrl: item.product.imageUrl,
+      selectedVariant: item.selectedVariant || '',
+    }));
+
+  if (orderItems.length === 0) {
+    throw new ApiError(400, 'Your cart items are no longer available');
+  }
+
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  let discountAmount = 0;
+  let appliedCoupon = null;
+
+  if (couponCode) {
+    const result = await validateCouponForOrder(couponCode, subtotal);
+    appliedCoupon = result.coupon;
+    discountAmount = result.discountAmount;
+  }
+
+  const totalAmount = Math.max(subtotal - discountAmount, 0);
+
+  const order = await Order.create({
+    user: req.user._id,
+    items: orderItems,
+    shippingAddress,
+    subtotal,
+    couponCode: appliedCoupon ? appliedCoupon.code : null,
+    discountAmount,
+    totalAmount,
+  });
+
+  if (appliedCoupon) {
+    appliedCoupon.usedCount += 1;
+    await appliedCoupon.save();
+  }
+
+  // Empty the cart now that the order has been placed
+  cart.items = [];
+  await cart.save();
+
+  res.status(201).json({ success: true, data: order });
+});
+
+// @desc    Get the logged-in user's order history
+// @route   GET /api/orders/my
+// @access  Private
+const getMyOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+  res.status(200).json({ success: true, data: orders });
+});
+
+// @desc    Get a single order by id (must belong to the requesting user, or be an admin)
+// @route   GET /api/orders/:id
+// @access  Private
+const getOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    throw new ApiError(404, 'Order not found');
+  }
+
+  if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    throw new ApiError(403, 'You are not authorized to view this order');
+  }
+
+  res.status(200).json({ success: true, data: order });
+});
+
+// @desc    Get all orders across all customers, optionally filtered by status
+// @route   GET /api/orders?status=pending
+// @access  Admin
+const getAllOrders = asyncHandler(async (req, res) => {
+  const { status } = req.query;
   const query = {};
-
-  if (search) {
-    query.name = { $regex: search, $options: 'i' };
+  if (status && status !== 'All') {
+    query.status = status;
   }
 
-  if (category && category !== 'All') {
-    query.category = category;
+  const orders = await Order.find(query).populate('user', 'name email').sort({ createdAt: -1 });
+  res.status(200).json({ success: true, data: orders });
+});
+
+// @desc    Update an order's status
+// @route   PUT /api/orders/:id/status
+// @access  Admin
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+
+  if (!validStatuses.includes(status)) {
+    throw new ApiError(400, 'Invalid order status');
   }
 
-  if (brand && brand !== 'All') {
-    query.brand = brand;
+  const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true, runValidators: true });
+
+  if (!order) {
+    throw new ApiError(404, 'Order not found');
   }
 
-  if (minRating) {
-    query.averageRating = { $gte: Number(minRating) };
+  await Notification.create({
+    user: order.user,
+    order: order._id,
+    message: `Your order #${order._id.toString().slice(-8).toUpperCase()} status changed to ${status.charAt(0).toUpperCase() + status.slice(1)}.`,
+  });
+
+  res.status(200).json({ success: true, data: order });
+});
+
+// @desc    Get sales/order analytics — revenue, order counts by status, last 7 days trend
+// @route   GET /api/orders/stats/summary
+// @access  Admin
+const getOrderStats = asyncHandler(async (req, res) => {
+  const allOrders = await Order.find({});
+
+  const totalOrders = allOrders.length;
+  const totalRevenue = allOrders
+    .filter((o) => o.status !== 'cancelled')
+    .reduce((sum, o) => sum + o.totalAmount, 0);
+
+  const ordersByStatus = { pending: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0 };
+  allOrders.forEach((o) => {
+    if (ordersByStatus[o.status] !== undefined) ordersByStatus[o.status] += 1;
+  });
+
+  const days = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - i);
+    days.push(date);
   }
 
-  const sortOptions = {
-    newest: { createdAt: -1 },
-    oldest: { createdAt: 1 },
-    price_asc: { price: 1 },
-    price_desc: { price: -1 },
-    name_asc: { name: 1 },
-    name_desc: { name: -1 },
-    rating_desc: { averageRating: -1 },
-  };
-  const sortBy = sortOptions[sort] || sortOptions.newest;
+  const last7Days = days.map((day) => {
+    const nextDay = new Date(day);
+    nextDay.setDate(nextDay.getDate() + 1);
 
-  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-  const limitNum = Math.max(parseInt(limit, 10) || 12, 1);
-  const skip = (pageNum - 1) * limitNum;
+    const dayOrders = allOrders.filter(
+      (o) => o.createdAt >= day && o.createdAt < nextDay && o.status !== 'cancelled'
+    );
 
-  const [products, total] = await Promise.all([
-    Product.find(query).sort(sortBy).skip(skip).limit(limitNum),
-    Product.countDocuments(query),
-  ]);
+    return {
+      date: day.toISOString().slice(0, 10),
+      revenue: dayOrders.reduce((sum, o) => sum + o.totalAmount, 0),
+      orders: dayOrders.length,
+    };
+  });
 
   res.status(200).json({
     success: true,
-    count: products.length,
-    total,
-    page: pageNum,
-    totalPages: Math.ceil(total / limitNum),
-    data: products,
+    data: { totalOrders, totalRevenue, ordersByStatus, last7Days },
   });
-});
-
-// @desc    Get lightweight search suggestions for autocomplete (name, image, price only)
-// @route   GET /api/products/search/suggestions?q=
-// @access  Public
-const getSearchSuggestions = asyncHandler(async (req, res) => {
-  const { q } = req.query;
-
-  if (!q || q.trim().length < 2) {
-    return res.status(200).json({ success: true, data: [] });
-  }
-
-  const suggestions = await Product.find({ name: { $regex: q.trim(), $options: 'i' } })
-    .select('name imageUrl price category')
-    .limit(6);
-
-  res.status(200).json({ success: true, data: suggestions });
-});
-
-// @desc    Get single product
-// @route   GET /api/products/:id
-// @access  Public
-const getProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id);
-
-  if (!product) {
-    throw new ApiError(404, 'Product not found');
-  }
-
-  res.status(200).json({ success: true, data: product });
-});
-
-// @desc    Create a product
-// @route   POST /api/products
-// @access  Admin
-const createProduct = asyncHandler(async (req, res) => {
-  const { name, category, brand, price, description, imageUrl, images, variants, stock } = req.body;
-
-  const product = await Product.create({
-    name,
-    category,
-    brand,
-    price,
-    description,
-    imageUrl,
-    images: images || [],
-    variants: variants || [],
-    stock,
-  });
-
-  res.status(201).json({ success: true, data: product });
-});
-
-// @desc    Update a product
-// @route   PUT /api/products/:id
-// @access  Admin
-const updateProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!product) {
-    throw new ApiError(404, 'Product not found');
-  }
-
-  res.status(200).json({ success: true, data: product });
-});
-
-// @desc    Delete a product
-// @route   DELETE /api/products/:id
-// @access  Admin
-const deleteProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
-
-  if (!product) {
-    throw new ApiError(404, 'Product not found');
-  }
-
-  res.status(200).json({ success: true, data: {} });
-});
-
-// @desc    Delete multiple products at once
-// @route   DELETE /api/products/bulk
-// @access  Admin
-const bulkDeleteProducts = asyncHandler(async (req, res) => {
-  const { ids } = req.body;
-
-  if (!Array.isArray(ids) || ids.length === 0) {
-    throw new ApiError(400, 'Please provide an array of product ids to delete');
-  }
-
-  const result = await Product.deleteMany({ _id: { $in: ids } });
-
-  res.status(200).json({ success: true, data: { deletedCount: result.deletedCount } });
-});
-
-// @desc    Get dashboard stats (total products, total categories, out of stock)
-// @route   GET /api/products/stats/summary
-// @access  Admin
-const getStats = asyncHandler(async (req, res) => {
-  const totalProducts = await Product.countDocuments();
-  const categories = await Product.distinct('category');
-  const outOfStock = await Product.countDocuments({ stock: { $lte: 0 } });
-
-  res.status(200).json({
-    success: true,
-    data: {
-      totalProducts,
-      totalCategories: categories.length,
-      outOfStock,
-    },
-  });
-});
-
-// @desc    Get distinct categories (for filter dropdown)
-// @route   GET /api/products/categories/list
-// @access  Public
-const getCategories = asyncHandler(async (req, res) => {
-  const categories = await Product.distinct('category');
-  res.status(200).json({ success: true, data: categories });
-});
-
-// @desc    Get distinct brands (for filter dropdown)
-// @route   GET /api/products/brands/list
-// @access  Public
-const getBrands = asyncHandler(async (req, res) => {
-  const brands = await Product.distinct('brand');
-  res.status(200).json({ success: true, data: brands.filter(Boolean) });
 });
 
 module.exports = {
-  getProducts,
-  getSearchSuggestions,
-  getProduct,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  bulkDeleteProducts,
-  getStats,
-  getCategories,
-  getBrands,
+  createOrder,
+  getMyOrders,
+  getOrder,
+  getAllOrders,
+  updateOrderStatus,
+  getOrderStats,
 };
