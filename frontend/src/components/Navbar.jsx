@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import NotificationBell from './NotificationBell';
 
 const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
               </>
             )}
           </nav>
+          <NotificationBell isLoggedIn={isLoggedIn} />
           {isLoggedIn && (
             <button type="button" className="btn btn-secondary btn-small" onClick={handleLogout}>
               Logout
