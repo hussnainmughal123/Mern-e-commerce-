@@ -48,6 +48,20 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: 'Cash on Delivery',
     },
+    subtotal: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    couponCode: {
+      type: String,
+      default: null,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     totalAmount: {
       type: Number,
       required: true,
