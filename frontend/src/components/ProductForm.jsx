@@ -7,6 +7,7 @@ const EMPTY_FORM = {
   price: "",
   description: "",
   imageUrl: "",
+  images: [],
   stock: "",
 };
 
@@ -14,11 +15,30 @@ const EMPTY_FORM = {
 const CLOUDINARY_CLOUD_NAME = "esfameei";
 const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
+const uploadToCloudinary = async (file) => {
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body: data,
+  });
+
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result?.error?.message || "Upload failed. Please try again.");
+  }
+  return result.secure_url;
+};
+
 const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [galleryError, setGalleryError] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -29,6 +49,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         price: initialData.price ?? "",
         description: initialData.description || "",
         imageUrl: initialData.imageUrl || "",
+        images: initialData.images || [],
         stock: initialData.stock ?? "",
       });
     } else {
@@ -36,6 +57,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     }
     setErrors({});
     setUploadError("");
+    setGalleryError("");
   }, [initialData]);
 
   const validate = () => {
@@ -84,28 +106,48 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     setUploading(true);
 
     try {
-      const data = new FormData();
-      data.append("file", file);
-      data.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        { method: "POST", body: data }
-      );
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result?.error?.message || "Upload failed. Please try again.");
-      }
-
-      handleChange("imageUrl", result.secure_url);
+      const url = await uploadToCloudinary(file);
+      handleChange("imageUrl", url);
     } catch (err) {
       setUploadError(err.message || "Upload failed. Please try again.");
     } finally {
       setUploading(false);
       e.target.value = "";
     }
+  };
+
+  const handleGallerySelect = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (form.images.length + files.length > 6) {
+      setGalleryError("You can add up to 6 additional photos.");
+      e.target.value = "";
+      return;
+    }
+
+    setGalleryError("");
+    setUploadingGallery(true);
+
+    try {
+      const uploadedUrls = [];
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) continue;
+        if (file.size > 10 * 1024 * 1024) continue;
+        const url = await uploadToCloudinary(file);
+        uploadedUrls.push(url);
+      }
+      setForm((prev) => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
+    } catch (err) {
+      setGalleryError(err.message || "Upload failed. Please try again.");
+    } finally {
+      setUploadingGallery(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeGalleryImage = (index) => {
+    setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
 
   const handleSubmit = (e) => {
@@ -118,6 +160,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       price: Number(form.price),
       description: form.description.trim(),
       imageUrl: form.imageUrl.trim(),
+      images: form.images,
       stock: Number(form.stock),
     });
   };
@@ -191,7 +234,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       </div>
 
       <div className="form-group">
-        <label htmlFor="photo">Product Photo *</label>
+        <label htmlFor="photo">Main Product Photo *</label>
 
         {form.imageUrl && (
           <div style={{ marginBottom: 10 }}>
@@ -203,17 +246,66 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
           </div>
         )}
 
-        <input
-          id="photo"
-          type="file"
-          accept="image/*"
-          onChange={handlePhotoSelect}
-          disabled={uploading}
-        />
+        <input id="photo" type="file" accept="image/*" onChange={handlePhotoSelect} disabled={uploading} />
 
         {uploading && <span className="field-error" style={{ color: "var(--color-text-muted)" }}>Uploading photo...</span>}
         {uploadError && <span className="field-error">{uploadError}</span>}
         {errors.imageUrl && <span className="field-error">{errors.imageUrl}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="gallery">Additional Photos (optional, up to 6)</label>
+
+        {form.images.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+            {form.images.map((url, idx) => (
+              <div key={url + idx} style={{ position: "relative" }}>
+                <img
+                  src={url}
+                  alt={`Gallery ${idx + 1}`}
+                  style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(idx)}
+                  aria-label="Remove image"
+                  style={{
+                    position: "absolute",
+                    top: -6,
+                    right: -6,
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    border: "none",
+                    background: "var(--color-danger)",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    lineHeight: 1,
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <input
+          id="gallery"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleGallerySelect}
+          disabled={uploadingGallery || form.images.length >= 6}
+        />
+
+        {uploadingGallery && (
+          <span className="field-error" style={{ color: "var(--color-text-muted)" }}>
+            Uploading photos...
+          </span>
+        )}
+        {galleryError && <span className="field-error">{galleryError}</span>}
       </div>
 
       <div className="form-group">
@@ -234,7 +326,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={submitting}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={submitting || uploading}>
+        <button type="submit" className="btn btn-primary" disabled={submitting || uploading || uploadingGallery}>
           {submitting ? "Saving..." : initialData ? "Update Product" : "Add Product"}
         </button>
       </div>
