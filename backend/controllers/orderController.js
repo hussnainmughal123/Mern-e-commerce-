@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
+const Notification = require('../models/Notification');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { validateCouponForOrder } = require('../utils/validateCoupon');
@@ -132,6 +133,12 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
+
+  await Notification.create({
+    user: order.user,
+    order: order._id,
+    message: `Your order #${order._id.toString().slice(-8).toUpperCase()} status changed to ${status.charAt(0).toUpperCase() + status.slice(1)}.`,
+  });
 
   res.status(200).json({ success: true, data: order });
 });
