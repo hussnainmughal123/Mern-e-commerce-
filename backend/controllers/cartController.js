@@ -12,7 +12,7 @@ const getOrCreateCart = async (userId) => {
 };
 
 const populateCart = (cart) =>
-  cart.populate('items.product', 'name price imageUrl stock category');
+  cart.populate('items.product', 'name price imageUrl stock category variants');
 
 // @desc    Get the logged-in user's cart
 // @route   GET /api/cart
@@ -24,11 +24,11 @@ const getCart = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: cart });
 });
 
-// @desc    Add a product to the cart (or increase quantity if already in cart)
+// @desc    Add a product to the cart (or increase quantity if the same product + variant already exists)
 // @route   POST /api/cart
 // @access  Private
 const addToCart = asyncHandler(async (req, res) => {
-  const { productId, quantity = 1 } = req.body;
+  const { productId, quantity = 1, selectedVariant = '' } = req.body;
 
   if (!productId) {
     throw new ApiError(400, 'productId is required');
@@ -40,12 +40,14 @@ const addToCart = asyncHandler(async (req, res) => {
   }
 
   const cart = await getOrCreateCart(req.user._id);
-  const existingItem = cart.items.find((item) => item.product.toString() === productId);
+  const existingItem = cart.items.find(
+    (item) => item.product.toString() === productId && item.selectedVariant === selectedVariant
+  );
 
   if (existingItem) {
     existingItem.quantity += Number(quantity);
   } else {
-    cart.items.push({ product: productId, quantity: Number(quantity) });
+    cart.items.push({ product: productId, quantity: Number(quantity), selectedVariant });
   }
 
   await cart.save();
@@ -54,8 +56,8 @@ const addToCart = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: cart });
 });
 
-// @desc    Update the quantity of a specific cart item
-// @route   PUT /api/cart/:productId
+// @desc    Update the quantity of a specific cart item (identified by its own item id)
+// @route   PUT /api/cart/:itemId
 // @access  Private
 const updateCartItem = asyncHandler(async (req, res) => {
   const { quantity } = req.body;
@@ -65,7 +67,7 @@ const updateCartItem = asyncHandler(async (req, res) => {
   }
 
   const cart = await getOrCreateCart(req.user._id);
-  const item = cart.items.find((i) => i.product.toString() === req.params.productId);
+  const item = cart.items.id(req.params.itemId);
 
   if (!item) {
     throw new ApiError(404, 'Item not found in cart');
@@ -78,12 +80,12 @@ const updateCartItem = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: cart });
 });
 
-// @desc    Remove a single item from the cart
-// @route   DELETE /api/cart/:productId
+// @desc    Remove a single item from the cart (identified by its own item id)
+// @route   DELETE /api/cart/:itemId
 // @access  Private
 const removeFromCart = asyncHandler(async (req, res) => {
   const cart = await getOrCreateCart(req.user._id);
-  cart.items = cart.items.filter((item) => item.product.toString() !== req.params.productId);
+  cart.items = cart.items.filter((item) => item._id.toString() !== req.params.itemId);
 
   await cart.save();
   await populateCart(cart);
