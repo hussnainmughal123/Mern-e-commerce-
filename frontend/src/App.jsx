@@ -9,6 +9,7 @@ import ProductDetails from './pages/ProductDetails';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminOrders from './pages/AdminOrders';
 import AdminAnalytics from './pages/AdminAnalytics';
+import AdminCoupons from './pages/AdminCoupons';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -72,6 +73,14 @@ function App() {
                 element={
                   <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
                     <AdminAnalytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/coupons"
+                element={
+                  <ProtectedRoute isLoggedIn={isLoggedIn} requireAdmin>
+                    <AdminCoupons />
                   </ProtectedRoute>
                 }
               />
