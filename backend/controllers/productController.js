@@ -56,6 +56,23 @@ const getProducts = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get lightweight search suggestions for autocomplete (name, image, price only)
+// @route   GET /api/products/search/suggestions?q=
+// @access  Public
+const getSearchSuggestions = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || q.trim().length < 2) {
+    return res.status(200).json({ success: true, data: [] });
+  }
+
+  const suggestions = await Product.find({ name: { $regex: q.trim(), $options: 'i' } })
+    .select('name imageUrl price category')
+    .limit(6);
+
+  res.status(200).json({ success: true, data: suggestions });
+});
+
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public
@@ -160,6 +177,7 @@ const getBrands = asyncHandler(async (req, res) => {
 
 module.exports = {
   getProducts,
+  getSearchSuggestions,
   getProduct,
   createProduct,
   updateProduct,
