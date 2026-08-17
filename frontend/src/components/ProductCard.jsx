@@ -8,6 +8,7 @@ const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 
 const ProductCard = ({ product }) => {
   const outOfStock = product.stock <= 0;
+  const hasVariants = product.variants && product.variants.length > 0;
   const cart = useCart();
   const wishlist = useWishlist();
   const navigate = useNavigate();
@@ -20,6 +21,11 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (hasVariants) {
+      navigate(`/products/${product._id}`);
+      return;
+    }
 
     if (!isLoggedIn) {
       navigate('/login');
@@ -103,7 +109,7 @@ const ProductCard = ({ product }) => {
           onClick={handleAddToCart}
           disabled={outOfStock || adding}
         >
-          {adding ? 'Adding...' : outOfStock ? 'Out of Stock' : 'Add to Cart'}
+          {adding ? 'Adding...' : outOfStock ? 'Out of Stock' : hasVariants ? 'Select Options' : 'Add to Cart'}
         </button>
       </div>
     </Link>
