@@ -138,6 +138,11 @@ const AdminOrders = () => {
                         />
                         <span style={{ flex: 1 }}>
                           {item.name} × {item.quantity}
+                          {item.selectedVariant && (
+                            <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
+                              {item.selectedVariant}
+                            </span>
+                          )}
                         </span>
                         <span>${(item.price * item.quantity).toFixed(2)}</span>
                       </div>
