@@ -5,6 +5,7 @@ const EMPTY_FORM = {
   category: "",
   brand: "",
   price: "",
+  originalPrice: "",
   description: "",
   imageUrl: "",
   images: [],
@@ -48,6 +49,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         category: initialData.category || "",
         brand: initialData.brand || "",
         price: initialData.price ?? "",
+        originalPrice: initialData.originalPrice ?? "",
         description: initialData.description || "",
         imageUrl: initialData.imageUrl || "",
         images: initialData.images || [],
@@ -71,6 +73,12 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
 
     if (form.price === "" || isNaN(form.price)) newErrors.price = "Enter a valid price.";
     else if (Number(form.price) < 0) newErrors.price = "Price cannot be negative.";
+
+    if (form.originalPrice !== "" && !isNaN(form.originalPrice)) {
+      if (Number(form.originalPrice) <= Number(form.price)) {
+        newErrors.originalPrice = "Original price must be higher than the current price.";
+      }
+    }
 
     if (!form.description.trim()) newErrors.description = "Description is required.";
     else if (form.description.trim().length > 500)
@@ -190,6 +198,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       category: form.category.trim(),
       brand: form.brand.trim(),
       price: Number(form.price),
+      originalPrice: form.originalPrice !== "" ? Number(form.originalPrice) : null,
       description: form.description.trim(),
       imageUrl: form.imageUrl.trim(),
       images: form.images,
@@ -249,6 +258,21 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
             className={errors.price ? "input-error" : ""}
           />
           {errors.price && <span className="field-error">{errors.price}</span>}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="originalPrice">Original Price ($, optional — for discount badge)</label>
+          <input
+            id="originalPrice"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="e.g. 49.99"
+            value={form.originalPrice}
+            onChange={(e) => handleChange("originalPrice", e.target.value)}
+            className={errors.originalPrice ? "input-error" : ""}
+          />
+          {errors.originalPrice && <span className="field-error">{errors.originalPrice}</span>}
         </div>
 
         <div className="form-group">
