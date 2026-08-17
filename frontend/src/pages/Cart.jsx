@@ -11,16 +11,16 @@ const CartPage = () => {
   const [error, setError] = useState('');
   const [busyId, setBusyId] = useState(null);
 
-  const items = cart.items.filter((item) => item.product);
+  const items = cart.items.filter((item) => item.product); // guard against deleted products
 
   const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
-  const handleQuantityChange = async (productId, quantity) => {
+  const handleQuantityChange = async (itemId, quantity) => {
     if (quantity < 1) return;
     setError('');
-    setBusyId(productId);
+    setBusyId(itemId);
     try {
-      await updateItem(productId, quantity);
+      await updateItem(itemId, quantity);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,11 +28,11 @@ const CartPage = () => {
     }
   };
 
-  const handleRemove = async (productId) => {
+  const handleRemove = async (itemId) => {
     setError('');
-    setBusyId(productId);
+    setBusyId(itemId);
     try {
-      await removeItem(productId);
+      await removeItem(itemId);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -88,14 +88,21 @@ const CartPage = () => {
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.product._id}>
+                  <tr key={item._id}>
                     <td style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <img
                         src={item.product.imageUrl || FALLBACK_IMG}
                         alt={item.product.name}
                         className="table-thumb"
                       />
-                      <span>{item.product.name}</span>
+                      <div>
+                        <span>{item.product.name}</span>
+                        {item.selectedVariant && (
+                          <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
+                            {item.selectedVariant}
+                          </p>
+                        )}
+                      </div>
                     </td>
                     <td>${item.product.price.toFixed(2)}</td>
                     <td>
@@ -103,8 +110,8 @@ const CartPage = () => {
                         <button
                           type="button"
                           className="btn btn-secondary btn-small"
-                          onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
-                          disabled={busyId === item.product._id || item.quantity <= 1}
+                          onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                          disabled={busyId === item._id || item.quantity <= 1}
                         >
                           −
                         </button>
@@ -112,8 +119,8 @@ const CartPage = () => {
                         <button
                           type="button"
                           className="btn btn-secondary btn-small"
-                          onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
-                          disabled={busyId === item.product._id || item.quantity >= item.product.stock}
+                          onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                          disabled={busyId === item._id || item.quantity >= item.product.stock}
                         >
                           +
                         </button>
@@ -124,8 +131,8 @@ const CartPage = () => {
                       <button
                         type="button"
                         className="btn btn-danger btn-small"
-                        onClick={() => handleRemove(item.product._id)}
-                        disabled={busyId === item.product._id}
+                        onClick={() => handleRemove(item._id)}
+                        disabled={busyId === item._id}
                       >
                         Remove
                       </button>
