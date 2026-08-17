@@ -860,3 +860,258 @@ body {
     background-position: -200% 0;
   }
 }
+
+/* ============================================
+   PREMIUM DESIGN UPGRADE — Phase 10.1
+   ============================================ */
+
+:root {
+  --color-primary: #4338ca;
+  --color-primary-dark: #3730a3;
+  --color-danger: #dc2626;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-medium: 0 10px 30px rgba(15, 23, 42, 0.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(6px);
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.brand-badge {
+  background: linear-gradient(135deg, var(--color-primary), #7c6df0);
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(67, 56, 202, 0.35);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 10px 20px;
+  letter-spacing: -0.01em;
+  box-shadow: none;
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border: none;
+  box-shadow: 0 4px 12px rgba(67, 56, 202, 0.28);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(67, 56, 202, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  border: none;
+}
+
+/* ---------- Product cards ---------- */
+.product-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.product-card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-6px);
+  border-color: transparent;
+}
+
+.product-card-img {
+  aspect-ratio: 1 / 0.9;
+  overflow: hidden;
+  background: #f4f4f7;
+}
+
+.product-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.product-card:hover .product-card-img img {
+  transform: scale(1.06);
+}
+
+.product-card-body {
+  padding: 16px;
+}
+
+.product-card-body h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 4px 0;
+}
+
+.category-tag {
+  display: inline-block;
+  background: rgba(67, 56, 202, 0.1);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.price {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-text);
+}
+
+.wishlist-btn {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+/* ---------- Hero banner (redesigned) ---------- */
+.hero-banner {
+  position: relative;
+  background: radial-gradient(circle at 15% 20%, #6355e8, transparent 55%),
+    linear-gradient(135deg, #4338ca 0%, #312e81 100%);
+  padding: 64px 20px;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hero-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -40px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hero-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-banner-eyebrow {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 5px 14px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+}
+
+.hero-banner-title {
+  font-size: 2.4rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-banner-subtitle {
+  font-size: 1.05rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-banner-cta {
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 640px) {
+  .hero-banner {
+    padding: 44px 18px;
+  }
+  .hero-banner-title {
+    font-size: 1.7rem;
+  }
+}
+
+/* ---------- Forms & inputs ---------- */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='tel'],
+input[type='date'],
+input[type='file'],
+select,
+textarea {
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.15);
+}
+
+/* ---------- Section headers ---------- */
+.page-header h1 {
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.section-title h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Tags / badges ---------- */
+.tag {
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+}
