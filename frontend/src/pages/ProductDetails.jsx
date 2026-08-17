@@ -20,6 +20,8 @@ const ProductDetails = () => {
   const wishlist = useWishlist();
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState('');
+  const [selectedVariants, setSelectedVariants] = useState({});
+  const [variantError, setVariantError] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -47,6 +49,8 @@ const ProductDetails = () => {
       const data = await getProduct(id);
       setProduct(data);
       setSelectedImage(data.imageUrl);
+      setSelectedVariants({});
+      setVariantError('');
       setQuantity(1);
 
       addToRecentlyViewed(data);
@@ -93,10 +97,23 @@ const ProductDetails = () => {
       return;
     }
 
+    if (product.variants && product.variants.length > 0) {
+      const missing = product.variants.find((v) => !selectedVariants[v.name]);
+      if (missing) {
+        setVariantError(`Please select a ${missing.name}.`);
+        return;
+      }
+    }
+    setVariantError('');
+
+    const variantString = (product.variants || [])
+      .map((v) => `${v.name}: ${selectedVariants[v.name]}`)
+      .join(', ');
+
     setAdding(true);
     setAddedMessage('');
     try {
-      await cart.addItem(product._id, quantity);
+      await cart.addItem(product._id, quantity, variantString);
       setAddedMessage('Added to cart!');
     } catch (err) {
       setError(err.message);
@@ -276,6 +293,40 @@ const ProductDetails = () => {
           </p>
 
           {addedMessage && <div className="toast">{addedMessage}</div>}
+
+          {!outOfStock && product.variants && product.variants.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              {product.variants.map((variant) => (
+                <div key={variant.name} style={{ marginBottom: 12 }}>
+                  <p style={{ margin: '0 0 6px', fontWeight: 600 }}>{variant.name}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {variant.options.map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariants((prev) => ({ ...prev, [variant.name]: option }));
+                          setVariantError('');
+                        }}
+                        className="btn btn-small"
+                        style={{
+                          background:
+                            selectedVariants[variant.name] === option
+                              ? 'var(--color-primary)'
+                              : 'var(--color-surface)',
+                          color: selectedVariants[variant.name] === option ? '#fff' : 'var(--color-text)',
+                          border: '1px solid var(--color-border)',
+                        }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {variantError && <span className="field-error">{variantError}</span>}
+            </div>
+          )}
 
           {!outOfStock && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
