@@ -753,3 +753,110 @@ body {
     gap: 20px;
   }
 }
+
+/* Hero Banner */
+.hero-banner {
+  background: linear-gradient(135deg, var(--color-primary), #7c6df0);
+  padding: 50px 20px;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-banner-content {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.hero-banner-eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+.hero-banner-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.hero-banner-subtitle {
+  font-size: 1rem;
+  opacity: 0.92;
+  margin: 0 0 22px;
+}
+
+.hero-banner-cta {
+  background: #fff;
+  color: var(--color-primary);
+  border: none;
+  font-weight: 700;
+}
+
+.hero-banner-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+  .hero-banner-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Product card hover animation */
+.product-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.btn {
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Loading skeletons */
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    rgba(255, 255, 255, 0.35) 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+.skeleton-image {
+  height: 180px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
+}
+
+.skeleton-card {
+  cursor: default;
+  pointer-events: none;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
