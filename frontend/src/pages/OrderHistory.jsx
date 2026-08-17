@@ -71,7 +71,11 @@ const OrderHistory = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {orders.map((order) => (
-            <div key={order._id} className="product-card" style={{ padding: 20 }}>
+            <div
+              key={order._id}
+              className={order._id === justPlacedOrderId ? 'product-card' : 'product-card'}
+              style={{ padding: 20 }}
+            >
               <div
                 style={{
                   display: 'flex',
@@ -106,6 +110,11 @@ const OrderHistory = () => {
                     />
                     <span style={{ flex: 1 }}>
                       {item.name} × {item.quantity}
+                      {item.selectedVariant && (
+                        <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--color-text-muted)' }}>
+                          {item.selectedVariant}
+                        </span>
+                      )}
                     </span>
                     <span>${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
