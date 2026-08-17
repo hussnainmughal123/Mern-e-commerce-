@@ -90,16 +90,19 @@ const getProduct = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, category, brand, price, description, imageUrl, images, stock } = req.body;
+  const { name, category, brand, price, originalPrice, description, imageUrl, images, variants, stock } =
+    req.body;
 
   const product = await Product.create({
     name,
     category,
     brand,
     price,
+    originalPrice: originalPrice || null,
     description,
     imageUrl,
     images: images || [],
+    variants: variants || [],
     stock,
   });
 
