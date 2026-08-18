@@ -9,6 +9,10 @@ const FALLBACK_IMG = 'https://via.placeholder.com/300x220.png?text=No+Image';
 const ProductCard = ({ product }) => {
   const outOfStock = product.stock <= 0;
   const hasVariants = product.variants && product.variants.length > 0;
+  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  const discountPercent = hasDiscount
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
   const cart = useCart();
   const wishlist = useWishlist();
   const navigate = useNavigate();
@@ -73,6 +77,9 @@ const ProductCard = ({ product }) => {
           }}
         />
         {outOfStock && <span className="badge badge-danger">Out of stock</span>}
+        {!outOfStock && hasDiscount && (
+          <span className="badge discount-badge">-{discountPercent}%</span>
+        )}
         <button
           type="button"
           className="wishlist-btn"
@@ -97,7 +104,14 @@ const ProductCard = ({ product }) => {
         )}
         <p className="description">{product.description}</p>
         <div className="product-card-footer">
-          <span className="price">${Number(product.price).toFixed(2)}</span>
+          <span>
+            <span className="price">${Number(product.price).toFixed(2)}</span>
+            {hasDiscount && (
+              <span style={{ marginLeft: 6, fontSize: '0.82rem', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
+                ${Number(product.originalPrice).toFixed(2)}
+              </span>
+            )}
+          </span>
           <span className={`stock ${outOfStock ? 'stock-out' : 'stock-in'}`}>
             {outOfStock ? 'Unavailable' : `${product.stock} in stock`}
           </span>
