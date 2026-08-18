@@ -5,6 +5,12 @@ const HeroBanner = () => {
 
   return (
     <div className="hero-banner">
+      <div className="hero-banner-badge">
+        <span className="hero-banner-badge-top">UP TO</span>
+        <span className="hero-banner-badge-percent">20%</span>
+        <span className="hero-banner-badge-bottom">OFF</span>
+      </div>
+
       <div className="hero-banner-content">
         <span className="hero-banner-eyebrow">Welcome to ShopDash</span>
         <h1 className="hero-banner-title">Everything You Need, All in One Place</h1>
