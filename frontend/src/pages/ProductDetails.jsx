@@ -283,6 +283,16 @@ const ProductDetails = () => {
 
           <p className="price" style={{ fontSize: '1.6rem' }}>
             ${Number(product.price).toFixed(2)}
+            {product.originalPrice && product.originalPrice > product.price && (
+              <>
+                <span style={{ marginLeft: 10, fontSize: '1.1rem', color: 'var(--color-text-muted)', textDecoration: 'line-through' }}>
+                  ${Number(product.originalPrice).toFixed(2)}
+                </span>
+                <span className="badge discount-badge" style={{ position: 'static', marginLeft: 10, display: 'inline-block' }}>
+                  -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                </span>
+              </>
+            )}
           </p>
           <span className={`stock ${outOfStock ? 'stock-out' : 'stock-in'}`} style={{ fontSize: '0.95rem' }}>
             {outOfStock ? 'Currently unavailable' : `${product.stock} in stock`}
