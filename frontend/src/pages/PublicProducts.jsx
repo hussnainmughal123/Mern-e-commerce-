@@ -6,6 +6,7 @@ import Pagination from '../components/Pagination';
 import ErrorMessage from '../components/ErrorMessage';
 import HeroBanner from '../components/HeroBanner';
 import ProductSkeleton from '../components/ProductSkeleton';
+import CategoryIconRow from '../components/CategoryIconRow';
 
 const PublicProducts = () => {
   const [products, setProducts] = useState([]);
@@ -72,6 +73,8 @@ const PublicProducts = () => {
           <h1>Our Products</h1>
           <p className="page-subtitle">Browse the full catalog and find exactly what you need.</p>
         </div>
+
+        <CategoryIconRow categories={sortedCategories} activeCategory={category} onSelect={setCategory} />
 
         <SearchFilter
           search={search}
