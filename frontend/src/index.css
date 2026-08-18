@@ -1372,3 +1372,19 @@ textarea:focus {
     right: 20px;
   }
 }
+
+/* Hero banner layout fix — resolves conflicting margin/flex rules from earlier edits */
+.hero-banner-content {
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
+.hero-banner-images {
+  box-sizing: border-box;
+}
+
+.hero-banner-inner {
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
