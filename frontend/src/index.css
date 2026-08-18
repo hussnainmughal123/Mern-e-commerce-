@@ -1172,3 +1172,65 @@ textarea:focus {
 .category-icon-emoji {
   font-size: 1.5rem;
 }
+
+/* Hero banner sale badge */
+.hero-banner-badge {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f5a623, #f76b1c);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(247, 107, 28, 0.45);
+  z-index: 2;
+  animation: badge-pulse 2.4s ease-in-out infinite;
+}
+
+.hero-banner-badge-top {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.hero-banner-badge-percent {
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.hero-banner-badge-bottom {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-banner-badge {
+    width: 64px;
+    height: 64px;
+    top: 14px;
+    right: 14px;
+  }
+  .hero-banner-badge-percent {
+    font-size: 1rem;
+  }
+  .hero-banner-badge-top,
+  .hero-banner-badge-bottom {
+    font-size: 0.5rem;
+  }
+}
