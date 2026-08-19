@@ -1388,3 +1388,15 @@ textarea:focus {
   width: 100%;
   box-sizing: border-box;
 }
+
+/* Prevent any element from causing horizontal page overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+}
+
+.app {
+  overflow-x: hidden;
+  width: 100%;
+}
