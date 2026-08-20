@@ -563,3 +563,13 @@ input:focus, select:focus, textarea:focus {
   .product-card-img { aspect-ratio: 1 / 1; }
   .details-grid { grid-template-columns: 1fr; gap: 20px; }
 }
+/* ---------- Fix: force hero title to be solid & visible ---------- */
+.hero-banner-title,
+.hero-banner-title * {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  opacity: 1 !important;
+}
