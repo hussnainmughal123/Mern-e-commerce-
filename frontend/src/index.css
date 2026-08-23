@@ -1243,3 +1243,18 @@ textarea:focus {
     border-radius: var(--radius-sm);
   }
 }
+/* Fix hamburger position — pin it to the far right on mobile */
+@media (max-width: 700px) {
+  .navbar-inner {
+    justify-content: flex-start;
+  }
+
+  .navbar-right {
+    order: 2;
+  }
+
+  .hamburger-btn {
+    order: 3;
+    margin-left: auto;
+  }
+}
