@@ -1838,3 +1838,130 @@ textarea:focus {
     animation: none !important;
   }
 }
+/* ============================================
+   NAVBAR — final fix: cart + hamburger always
+   pinned top-right corner, same on all screens
+   ============================================ */
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.navbar-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.navbar-cart-link {
+  position: relative;
+  font-size: 1.25rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-img-bg);
+  flex-shrink: 0;
+}
+
+.navbar-cart-count {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-img-bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.hamburger-btn span {
+  width: 20px;
+  height: 2.5px;
+  background: var(--color-text);
+  border-radius: 2px;
+}
+
+.navbar-right {
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+.nav-links {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  min-width: 230px;
+  max-width: calc(100vw - 40px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
+.nav-links.open {
+  display: flex;
+}
+
+.nav-links a {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.nav-links-extra {
+  border-top: 1px solid var(--color-border);
+  margin-top: 8px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-links-extra-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.nav-links-extra-full {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+}
