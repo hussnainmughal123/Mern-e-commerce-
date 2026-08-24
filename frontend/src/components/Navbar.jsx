@@ -26,76 +26,91 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
           <span>ShopDash</span>
         </div>
 
-        <button
-          type="button"
-          className="hamburger-btn"
-          onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label="Toggle menu"
-          aria-expanded={menuOpen}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        <div className="navbar-quick-actions">
+          {isLoggedIn && (
+            <NavLink to="/cart" className="navbar-cart-link" onClick={closeMenu}>
+              🛒{cart.itemCount > 0 ? <span className="navbar-cart-count">{cart.itemCount}</span> : null}
+            </NavLink>
+          )}
+
+          <button
+            type="button"
+            className="hamburger-btn"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
 
         <div className="navbar-right">
-          <nav className={`nav-links ${menuOpen ? 'open' : ''}`} onClick={closeMenu}>
-            <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
+          <nav className={`nav-links ${menuOpen ? 'open' : ''}`}>
+            <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Shop
             </NavLink>
-            <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Admin Dashboard
             </NavLink>
-            <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Manage Orders
             </NavLink>
-            <NavLink to="/admin/analytics" className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink to="/admin/analytics" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Analytics
             </NavLink>
-            <NavLink to="/admin/coupons" className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink to="/admin/coupons" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Coupons
             </NavLink>
             {isLoggedIn && (
               <>
-                <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')}>
+                <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
                   Wishlist{wishlist.items.length > 0 ? ` (${wishlist.items.length})` : ''}
                 </NavLink>
-                <NavLink to="/cart" className={({ isActive }) => (isActive ? 'active' : '')}>
-                  Cart{cart.itemCount > 0 ? ` (${cart.itemCount})` : ''}
-                </NavLink>
-                <NavLink to="/orders" className={({ isActive }) => (isActive ? 'active' : '')}>
+                <NavLink to="/orders" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
                   Orders
                 </NavLink>
-                <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')}>
+                <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
                   Profile
                 </NavLink>
               </>
             )}
             {!isLoggedIn && (
               <>
-                <NavLink to="/login" className={({ isActive }) => (isActive ? 'active' : '')}>
+                <NavLink to="/login" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
                   Login
                 </NavLink>
-                <NavLink to="/signup" className={({ isActive }) => (isActive ? 'active' : '')}>
+                <NavLink to="/signup" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
                   Sign Up
                 </NavLink>
               </>
             )}
+
+            <div className="nav-links-extra">
+              <div className="nav-links-extra-item">
+                <NotificationBell isLoggedIn={isLoggedIn} />
+                <span>Notifications</span>
+              </div>
+              <button
+                type="button"
+                className="theme-toggle nav-links-extra-full"
+                onClick={onToggleTheme}
+                aria-label="Toggle dark mode"
+              >
+                {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+              </button>
+              {isLoggedIn && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small nav-links-extra-full"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              )}
+            </div>
           </nav>
-          <NotificationBell isLoggedIn={isLoggedIn} />
-          {isLoggedIn && (
-            <button type="button" className="btn btn-secondary btn-small" onClick={handleLogout}>
-              Logout
-            </button>
-          )}
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={onToggleTheme}
-            aria-label="Toggle dark mode"
-          >
-            {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-          </button>
         </div>
       </div>
     </header>
