@@ -5,6 +5,8 @@ import { createOrder } from '../api/orderApi';
 import { validateCoupon } from '../api/couponApi';
 import ErrorMessage from '../components/ErrorMessage';
 
+const FALLBACK_IMG = 'https://via.placeholder.com/60x60.png?text=No+Image';
+
 const EMPTY_ADDRESS = {
   fullName: '',
   addressLine1: '',
@@ -111,153 +113,205 @@ const Checkout = () => {
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Checkout</h1>
-        <p className="page-subtitle">Enter your shipping details to place your order.</p>
-      </div>
-
-      {apiError && <ErrorMessage message={apiError} />}
-
-      <div className="details-grid">
-        <form className="product-form" onSubmit={handlePlaceOrder} noValidate>
-          <div className="form-group">
-            <label htmlFor="fullName">Full Name *</label>
-            <input
-              id="fullName"
-              type="text"
-              value={address.fullName}
-              onChange={(e) => handleChange('fullName', e.target.value)}
-              className={errors.fullName ? 'input-error' : ''}
-            />
-            {errors.fullName && <span className="field-error">{errors.fullName}</span>}
+    <div className="checkout-page">
+      <div className="checkout-layout">
+        {/* ---------- Left: form sections ---------- */}
+        <form className="checkout-main" onSubmit={handlePlaceOrder} noValidate>
+          <div className="page-header" style={{ marginBottom: 24 }}>
+            <h1>Checkout</h1>
+            <p className="page-subtitle">Review your order and enter your shipping details.</p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="addressLine1">Address Line 1 *</label>
-            <input
-              id="addressLine1"
-              type="text"
-              value={address.addressLine1}
-              onChange={(e) => handleChange('addressLine1', e.target.value)}
-              className={errors.addressLine1 ? 'input-error' : ''}
-            />
-            {errors.addressLine1 && <span className="field-error">{errors.addressLine1}</span>}
-          </div>
+          {apiError && <ErrorMessage message={apiError} />}
 
-          <div className="form-group">
-            <label htmlFor="addressLine2">Address Line 2 (optional)</label>
-            <input
-              id="addressLine2"
-              type="text"
-              value={address.addressLine2}
-              onChange={(e) => handleChange('addressLine2', e.target.value)}
-            />
-          </div>
+          {/* Delivery / Shipping Address */}
+          <section className="checkout-section">
+            <h2 className="checkout-section-title">
+              <span className="checkout-section-number">1</span> Delivery Address
+            </h2>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="city">City *</label>
+            <div className="checkout-field">
+              <label htmlFor="fullName">Full Name</label>
               <input
-                id="city"
+                id="fullName"
                 type="text"
-                value={address.city}
-                onChange={(e) => handleChange('city', e.target.value)}
-                className={errors.city ? 'input-error' : ''}
+                placeholder="Full Name *"
+                value={address.fullName}
+                onChange={(e) => handleChange('fullName', e.target.value)}
+                className={errors.fullName ? 'input-error' : ''}
               />
-              {errors.city && <span className="field-error">{errors.city}</span>}
+              {errors.fullName && <span className="field-error">{errors.fullName}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="state">State / Province *</label>
+            <div className="checkout-field">
+              <label htmlFor="addressLine1">Address Line 1</label>
               <input
-                id="state"
+                id="addressLine1"
                 type="text"
-                value={address.state}
-                onChange={(e) => handleChange('state', e.target.value)}
-                className={errors.state ? 'input-error' : ''}
+                placeholder="Street address *"
+                value={address.addressLine1}
+                onChange={(e) => handleChange('addressLine1', e.target.value)}
+                className={errors.addressLine1 ? 'input-error' : ''}
               />
-              {errors.state && <span className="field-error">{errors.state}</span>}
+              {errors.addressLine1 && <span className="field-error">{errors.addressLine1}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="postalCode">Postal Code *</label>
+            <div className="checkout-field">
+              <label htmlFor="addressLine2">Address Line 2</label>
               <input
-                id="postalCode"
+                id="addressLine2"
                 type="text"
-                value={address.postalCode}
-                onChange={(e) => handleChange('postalCode', e.target.value)}
-                className={errors.postalCode ? 'input-error' : ''}
+                placeholder="Apartment, suite, etc. (optional)"
+                value={address.addressLine2}
+                onChange={(e) => handleChange('addressLine2', e.target.value)}
               />
-              {errors.postalCode && <span className="field-error">{errors.postalCode}</span>}
             </div>
 
-            <div className="form-group">
-              <label htmlFor="country">Country *</label>
-              <input
-                id="country"
-                type="text"
-                value={address.country}
-                onChange={(e) => handleChange('country', e.target.value)}
-                className={errors.country ? 'input-error' : ''}
-              />
-              {errors.country && <span className="field-error">{errors.country}</span>}
+            <div className="checkout-field-row">
+              <div className="checkout-field">
+                <label htmlFor="city">City</label>
+                <input
+                  id="city"
+                  type="text"
+                  placeholder="City *"
+                  value={address.city}
+                  onChange={(e) => handleChange('city', e.target.value)}
+                  className={errors.city ? 'input-error' : ''}
+                />
+                {errors.city && <span className="field-error">{errors.city}</span>}
+              </div>
+
+              <div className="checkout-field">
+                <label htmlFor="state">State / Province</label>
+                <input
+                  id="state"
+                  type="text"
+                  placeholder="State *"
+                  value={address.state}
+                  onChange={(e) => handleChange('state', e.target.value)}
+                  className={errors.state ? 'input-error' : ''}
+                />
+                {errors.state && <span className="field-error">{errors.state}</span>}
+              </div>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="phone">Phone Number *</label>
-            <input
-              id="phone"
-              type="tel"
-              value={address.phone}
-              onChange={(e) => handleChange('phone', e.target.value)}
-              className={errors.phone ? 'input-error' : ''}
-            />
-            {errors.phone && <span className="field-error">{errors.phone}</span>}
-          </div>
+            <div className="checkout-field-row">
+              <div className="checkout-field">
+                <label htmlFor="postalCode">Postal Code</label>
+                <input
+                  id="postalCode"
+                  type="text"
+                  placeholder="Postal code *"
+                  value={address.postalCode}
+                  onChange={(e) => handleChange('postalCode', e.target.value)}
+                  className={errors.postalCode ? 'input-error' : ''}
+                />
+                {errors.postalCode && <span className="field-error">{errors.postalCode}</span>}
+              </div>
 
-          <div className="form-group">
-            <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>
-              Payment Method: <strong>Cash on Delivery</strong>
-            </p>
-          </div>
+              <div className="checkout-field">
+                <label htmlFor="country">Country</label>
+                <input
+                  id="country"
+                  type="text"
+                  placeholder="Country *"
+                  value={address.country}
+                  onChange={(e) => handleChange('country', e.target.value)}
+                  className={errors.country ? 'input-error' : ''}
+                />
+                {errors.country && <span className="field-error">{errors.country}</span>}
+              </div>
+            </div>
 
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Placing Order...' : `Place Order — $${total.toFixed(2)}`}
-            </button>
-          </div>
+            <div className="checkout-field">
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                id="phone"
+                type="tel"
+                placeholder="Phone number *"
+                value={address.phone}
+                onChange={(e) => handleChange('phone', e.target.value)}
+                className={errors.phone ? 'input-error' : ''}
+              />
+              {errors.phone && <span className="field-error">{errors.phone}</span>}
+            </div>
+          </section>
+
+          {/* Shipping Method */}
+          <section className="checkout-section">
+            <h2 className="checkout-section-title">
+              <span className="checkout-section-number">2</span> Shipping Method
+            </h2>
+            <div className="checkout-radio-option checkout-radio-option-selected">
+              <span className="checkout-radio-dot" />
+              <div style={{ flex: 1 }}>
+                <p className="checkout-radio-title">Standard Delivery</p>
+                <p className="checkout-radio-subtitle">Delivered within 3–5 business days</p>
+              </div>
+              <span className="checkout-radio-price">Free</span>
+            </div>
+          </section>
+
+          {/* Payment */}
+          <section className="checkout-section">
+            <h2 className="checkout-section-title">
+              <span className="checkout-section-number">3</span> Payment
+            </h2>
+            <div className="checkout-radio-option checkout-radio-option-selected">
+              <span className="checkout-radio-dot" />
+              <div style={{ flex: 1 }}>
+                <p className="checkout-radio-title">Cash on Delivery</p>
+                <p className="checkout-radio-subtitle">Pay when your order arrives</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Mobile-only submit (desktop uses the sticky summary button) */}
+          <button type="submit" className="btn btn-primary checkout-submit-mobile" disabled={submitting}>
+            {submitting ? 'Placing Order...' : `Place Order — $${total.toFixed(2)}`}
+          </button>
         </form>
 
-        <div className="details-info">
-          <h2 style={{ marginTop: 0 }}>Order Summary</h2>
-          {items.map((item) => (
-            <div
-              key={item.product._id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '10px 0',
-                borderBottom: '1px solid var(--color-border)',
-              }}
-            >
-              <span>
-                {item.product.name} × {item.quantity}
-              </span>
-              <span>${(item.product.price * item.quantity).toFixed(2)}</span>
-            </div>
-          ))}
+        {/* ---------- Right: sticky order summary ---------- */}
+        <aside className="checkout-summary">
+          <h2 className="checkout-section-title">Order Summary</h2>
 
-          <div style={{ marginTop: 16 }}>
+          <div className="checkout-summary-items">
+            {items.map((item) => (
+              <div key={item._id} className="checkout-summary-item">
+                <div className="checkout-summary-thumb-wrap">
+                  <img
+                    src={item.product.imageUrl || FALLBACK_IMG}
+                    alt={item.product.name}
+                    className="checkout-summary-thumb"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = FALLBACK_IMG;
+                    }}
+                  />
+                  <span className="checkout-summary-qty-badge">{item.quantity}</span>
+                </div>
+                <div className="checkout-summary-item-info">
+                  <p className="checkout-summary-item-name">{item.product.name}</p>
+                  {item.selectedVariant && (
+                    <p className="checkout-summary-item-variant">{item.selectedVariant}</p>
+                  )}
+                </div>
+                <span className="checkout-summary-item-price">
+                  ${(item.product.price * item.quantity).toFixed(2)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="checkout-coupon">
             {!appliedCoupon ? (
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="checkout-coupon-input-row">
                 <input
                   type="text"
                   placeholder="Coupon code"
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
-                  style={{ flex: 1 }}
                 />
                 <button
                   type="button"
@@ -265,15 +319,15 @@ const Checkout = () => {
                   onClick={handleApplyCoupon}
                   disabled={applyingCoupon}
                 >
-                  {applyingCoupon ? 'Checking...' : 'Apply'}
+                  {applyingCoupon ? '...' : 'Apply'}
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--color-primary)' }}>
-                  ✓ Coupon <strong>{appliedCoupon.code}</strong> applied
+              <div className="checkout-coupon-applied">
+                <span>
+                  ✓ <strong>{appliedCoupon.code}</strong> applied
                 </span>
-                <button type="button" className="btn btn-secondary btn-small" onClick={handleRemoveCoupon}>
+                <button type="button" className="checkout-coupon-remove" onClick={handleRemoveCoupon}>
                   Remove
                 </button>
               </div>
@@ -281,23 +335,36 @@ const Checkout = () => {
             {couponError && <span className="field-error">{couponError}</span>}
           </div>
 
-          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="checkout-totals">
+            <div className="checkout-totals-row">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
+            <div className="checkout-totals-row">
+              <span>Shipping</span>
+              <span>Free</span>
+            </div>
             {discount > 0 && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-primary)' }}>
+              <div className="checkout-totals-row checkout-totals-discount">
                 <span>Discount</span>
                 <span>−${discount.toFixed(2)}</span>
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem' }}>
-              <strong>Total</strong>
-              <strong>${total.toFixed(2)}</strong>
+            <div className="checkout-totals-row checkout-totals-grand">
+              <span>Total</span>
+              <span>${total.toFixed(2)}</span>
             </div>
           </div>
-        </div>
+
+          <button
+            type="button"
+            className="btn btn-primary checkout-submit-desktop"
+            disabled={submitting}
+            onClick={handlePlaceOrder}
+          >
+            {submitting ? 'Placing Order...' : 'Place Order'}
+          </button>
+        </aside>
       </div>
     </div>
   );
