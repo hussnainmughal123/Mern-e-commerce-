@@ -1737,3 +1737,104 @@ textarea:focus {
     display: block;
   }
 }
+/* Checkout page animations */
+.checkout-section {
+  animation: fadeInUp 0.4s ease both;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.checkout-main .checkout-section:nth-child(2) { animation-delay: 0.05s; }
+.checkout-main .checkout-section:nth-child(3) { animation-delay: 0.1s; }
+.checkout-main .checkout-section:nth-child(4) { animation-delay: 0.15s; }
+
+.checkout-section:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.checkout-summary {
+  animation: fadeInUp 0.45s ease 0.1s both;
+}
+
+.checkout-summary-item {
+  animation: fadeIn 0.35s ease both;
+  transition: transform 0.15s ease;
+}
+
+.checkout-summary-item:hover {
+  transform: translateX(3px);
+}
+
+.checkout-summary-thumb-wrap {
+  transition: transform 0.15s ease;
+}
+
+.checkout-summary-item:hover .checkout-summary-thumb-wrap {
+  transform: scale(1.05);
+}
+
+.checkout-radio-option {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.checkout-radio-option:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.checkout-radio-dot {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.checkout-radio-option-selected .checkout-radio-dot {
+  animation: dotPop 0.3s ease;
+}
+
+@keyframes dotPop {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.checkout-coupon-applied {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.checkout-totals-grand {
+  transition: color 0.2s ease;
+}
+
+.checkout-summary-item-price,
+.checkout-totals-row span:last-child {
+  transition: color 0.2s ease;
+}
+
+.checkout-submit-desktop,
+.checkout-submit-mobile {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.checkout-submit-desktop:hover:not(:disabled),
+.checkout-submit-mobile:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(47, 95, 224, 0.35);
+}
+
+.checkout-submit-desktop:active:not(:disabled),
+.checkout-submit-mobile:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.checkout-coupon-input-row input:focus {
+  transform: scale(1.01);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-section,
+  .checkout-summary,
+  .checkout-summary-item,
+  .checkout-coupon-applied,
+  .checkout-radio-dot {
+    animation: none !important;
+  }
+}
