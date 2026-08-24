@@ -1258,3 +1258,169 @@ textarea:focus {
     margin-left: auto;
   }
 }
+/* ============================================
+   ANIMATIONS — professional, subtle motion
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Page content fades/slides in on load */
+.page-container {
+  animation: fadeInUp 0.4s ease both;
+}
+
+.hero-banner-content {
+  animation: fadeInUp 0.55s ease both;
+}
+
+.hero-banner-images {
+  animation: fadeIn 0.8s ease 0.15s both;
+}
+
+/* Product cards animate in with a staggered cascade */
+.product-card {
+  animation: fadeInUp 0.4s ease both;
+}
+
+.product-grid .product-card:nth-child(1) { animation-delay: 0.02s; }
+.product-grid .product-card:nth-child(2) { animation-delay: 0.06s; }
+.product-grid .product-card:nth-child(3) { animation-delay: 0.1s; }
+.product-grid .product-card:nth-child(4) { animation-delay: 0.14s; }
+.product-grid .product-card:nth-child(5) { animation-delay: 0.18s; }
+.product-grid .product-card:nth-child(6) { animation-delay: 0.22s; }
+.product-grid .product-card:nth-child(7) { animation-delay: 0.26s; }
+.product-grid .product-card:nth-child(8) { animation-delay: 0.3s; }
+
+/* Modals scale + fade in smoothly */
+.modal-overlay {
+  animation: fadeIn 0.2s ease both;
+}
+
+.modal-content {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Mobile nav dropdown slides down */
+.nav-links.open {
+  animation: slideDown 0.22s ease both;
+}
+
+/* Notification dropdown */
+.category-icon-row {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* Toasts pop in */
+.toast {
+  animation: slideDown 0.25s ease both;
+}
+
+/* Stat cards on admin dashboard cascade in */
+.stat-card {
+  animation: fadeInUp 0.4s ease both;
+}
+
+.stats-grid .stat-card:nth-child(1) { animation-delay: 0.02s; }
+.stats-grid .stat-card:nth-child(2) { animation-delay: 0.08s; }
+.stats-grid .stat-card:nth-child(3) { animation-delay: 0.14s; }
+
+/* Buttons: smoother, springier feedback */
+.btn {
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* Nav link underline animation */
+.nav-links a {
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 3px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.nav-links a:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-links a.active::after {
+  display: none;
+}
+
+/* Theme toggle icon rotates smoothly */
+.theme-toggle {
+  transition: border-color 0.15s ease, transform 0.3s ease;
+}
+
+.theme-toggle:active {
+  transform: rotate(15deg);
+}
+
+/* Table rows fade in */
+.product-table tbody tr {
+  animation: fadeIn 0.3s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-container,
+  .hero-banner-content,
+  .hero-banner-images,
+  .product-card,
+  .modal-overlay,
+  .modal-content,
+  .nav-links.open,
+  .toast,
+  .stat-card,
+  .product-table tbody tr {
+    animation: none !important;
+  }
+}
