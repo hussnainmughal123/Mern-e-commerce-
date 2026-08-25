@@ -1965,6 +1965,7 @@ textarea:focus {
   text-align: left;
   justify-content: flex-start;
 }
+
 /* Password eye icon — forced fix */
 .password-input-wrap {
   position: relative !important;
