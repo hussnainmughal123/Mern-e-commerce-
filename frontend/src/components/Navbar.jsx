@@ -10,6 +10,9 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
   const wishlist = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const isAdmin = currentUser?.role === 'admin';
+
   const handleLogout = () => {
     onLogout();
     setMenuOpen(false);
@@ -51,18 +54,24 @@ const Navbar = ({ theme, onToggleTheme, isLoggedIn, onLogout }) => {
             <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
               Shop
             </NavLink>
-            <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
-              Admin Dashboard
-            </NavLink>
-            <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
-              Manage Orders
-            </NavLink>
-            <NavLink to="/admin/analytics" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
-              Analytics
-            </NavLink>
-            <NavLink to="/admin/coupons" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
-              Coupons
-            </NavLink>
+
+            {isAdmin && (
+              <>
+                <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
+                  Admin Dashboard
+                </NavLink>
+                <NavLink to="/admin/orders" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
+                  Manage Orders
+                </NavLink>
+                <NavLink to="/admin/analytics" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
+                  Analytics
+                </NavLink>
+                <NavLink to="/admin/coupons" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
+                  Coupons
+                </NavLink>
+              </>
+            )}
+
             {isLoggedIn && (
               <>
                 <NavLink to="/wishlist" className={({ isActive }) => (isActive ? 'active' : '')} onClick={closeMenu}>
