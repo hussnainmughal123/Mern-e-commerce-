@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
+const Product = require('../models/Product');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const { validateCouponForOrder } = require('../utils/validateCoupon');
@@ -70,6 +71,29 @@ const createOrder = asyncHandler(async (req, res) => {
   if (appliedCoupon) {
     appliedCoupon.usedCount += 1;
     await appliedCoupon.save();
+  }
+
+  // Reduce stock for each ordered item — overall product stock, and the
+  // specific variant option's stock if a variant was selected.
+  for (const item of orderItems) {
+    await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
+
+    if (item.selectedVariant) {
+      const product = await Product.findById(item.product);
+      if (product) {
+        const pairs = item.selectedVariant.split(', ').map((pair) => pair.split(': '));
+        let changed = false;
+        for (const [groupName, optionValue] of pairs) {
+          const group = product.variants.find((v) => v.name === groupName);
+          const option = group?.options.find((o) => o.value === optionValue);
+          if (option) {
+            option.stock = Math.max(0, option.stock - item.quantity);
+            changed = true;
+          }
+        }
+        if (changed) await product.save();
+      }
+    }
   }
 
   // Empty the cart now that the order has been placed
