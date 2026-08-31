@@ -160,38 +160,79 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
   };
 
+  // ---------- Variant group + per-option stock management ----------
   const addVariantGroup = () => {
     setForm((prev) => ({ ...prev, variants: [...prev.variants, { name: "", options: [] }] }));
   };
 
-  const removeVariantGroup = (index) => {
-    setForm((prev) => ({ ...prev, variants: prev.variants.filter((_, i) => i !== index) }));
+  const removeVariantGroup = (groupIndex) => {
+    setForm((prev) => ({ ...prev, variants: prev.variants.filter((_, i) => i !== groupIndex) }));
   };
 
-  const updateVariantName = (index, name) => {
+  const updateVariantName = (groupIndex, name) => {
     setForm((prev) => ({
       ...prev,
-      variants: prev.variants.map((v, i) => (i === index ? { ...v, name } : v)),
+      variants: prev.variants.map((v, i) => (i === groupIndex ? { ...v, name } : v)),
     }));
   };
 
-  const updateVariantOptions = (index, optionsText) => {
-    const options = optionsText
-      .split(",")
-      .map((o) => o.trim())
-      .filter(Boolean);
+  const addOption = (groupIndex) => {
     setForm((prev) => ({
       ...prev,
-      variants: prev.variants.map((v, i) => (i === index ? { ...v, options } : v)),
+      variants: prev.variants.map((v, i) =>
+        i === groupIndex ? { ...v, options: [...v.options, { value: "", stock: 0 }] } : v
+      ),
+    }));
+  };
+
+  const removeOption = (groupIndex, optionIndex) => {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) =>
+        i === groupIndex ? { ...v, options: v.options.filter((_, oi) => oi !== optionIndex) } : v
+      ),
+    }));
+  };
+
+  const updateOptionValue = (groupIndex, optionIndex, value) => {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) =>
+        i === groupIndex
+          ? { ...v, options: v.options.map((o, oi) => (oi === optionIndex ? { ...o, value } : o)) }
+          : v
+      ),
+    }));
+  };
+
+  const updateOptionStock = (groupIndex, optionIndex, stock) => {
+    setForm((prev) => ({
+      ...prev,
+      variants: prev.variants.map((v, i) =>
+        i === groupIndex
+          ? {
+              ...v,
+              options: v.options.map((o, oi) =>
+                oi === optionIndex ? { ...o, stock: stock === "" ? "" : Number(stock) } : o
+              ),
+            }
+          : v
+      ),
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     const cleanedVariants = form.variants
-      .filter((v) => v.name.trim() && v.options.length > 0)
-      .map((v) => ({ name: v.name.trim(), options: v.options }));
+      .map((v) => ({
+        name: v.name.trim(),
+        options: v.options
+          .filter((o) => o.value.trim())
+          .map((o) => ({ value: o.value.trim(), stock: Number(o.stock) || 0 })),
+      }))
+      .filter((v) => v.name && v.options.length > 0);
 
     onSubmit({
       name: form.name.trim(),
@@ -276,7 +317,7 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="stock">Stock Quantity *</label>
+          <label htmlFor="stock">Overall Stock Quantity *</label>
           <input
             id="stock"
             type="number"
@@ -366,38 +407,68 @@ const ProductForm = ({ initialData, onSubmit, onCancel, submitting }) => {
       </div>
 
       <div className="form-group">
-        <label>Variants (optional — e.g. Size, Color)</label>
-        {form.variants.map((variant, idx) => (
+        <label>Variants (optional — e.g. Size, Color — with stock per option)</label>
+        {form.variants.map((variant, groupIndex) => (
           <div
-            key={idx}
+            key={groupIndex}
             style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "flex-start",
-              marginBottom: 8,
-              flexWrap: "wrap",
+              border: "1px solid var(--color-border)",
+              borderRadius: 10,
+              padding: 12,
+              marginBottom: 10,
             }}
           >
-            <input
-              type="text"
-              placeholder="Variant name (e.g. Size)"
-              value={variant.name}
-              onChange={(e) => updateVariantName(idx, e.target.value)}
-              style={{ flex: "1 1 140px" }}
-            />
-            <input
-              type="text"
-              placeholder="Options, comma separated (e.g. Small, Medium, Large)"
-              value={variant.options.join(", ")}
-              onChange={(e) => updateVariantOptions(idx, e.target.value)}
-              style={{ flex: "2 1 220px" }}
-            />
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              <input
+                type="text"
+                placeholder="Variant name (e.g. Size)"
+                value={variant.name}
+                onChange={(e) => updateVariantName(groupIndex, e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button
+                type="button"
+                className="btn btn-danger btn-small"
+                onClick={() => removeVariantGroup(groupIndex)}
+              >
+                Remove Group
+              </button>
+            </div>
+
+            {variant.options.map((option, optionIndex) => (
+              <div key={optionIndex} style={{ display: "flex", gap: 8, marginBottom: 6, alignItems: "center" }}>
+                <input
+                  type="text"
+                  placeholder="Option (e.g. Small)"
+                  value={option.value}
+                  onChange={(e) => updateOptionValue(groupIndex, optionIndex, e.target.value)}
+                  style={{ flex: "2 1 140px" }}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Stock"
+                  value={option.stock}
+                  onChange={(e) => updateOptionStock(groupIndex, optionIndex, e.target.value)}
+                  style={{ flex: "1 1 80px" }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small"
+                  onClick={() => removeOption(groupIndex, optionIndex)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
             <button
               type="button"
-              className="btn btn-danger btn-small"
-              onClick={() => removeVariantGroup(idx)}
+              className="btn btn-secondary btn-small"
+              onClick={() => addOption(groupIndex)}
+              style={{ marginTop: 4 }}
             >
-              Remove
+              + Add Option
             </button>
           </div>
         ))}
