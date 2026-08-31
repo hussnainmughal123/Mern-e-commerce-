@@ -310,27 +310,35 @@ const ProductDetails = () => {
                 <div key={variant.name} style={{ marginBottom: 12 }}>
                   <p style={{ margin: '0 0 6px', fontWeight: 600 }}>{variant.name}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {variant.options.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => {
-                          setSelectedVariants((prev) => ({ ...prev, [variant.name]: option }));
-                          setVariantError('');
-                        }}
-                        className="btn btn-small"
-                        style={{
-                          background:
-                            selectedVariants[variant.name] === option
-                              ? 'var(--color-primary)'
-                              : 'var(--color-surface)',
-                          color: selectedVariants[variant.name] === option ? '#fff' : 'var(--color-text)',
-                          border: '1px solid var(--color-border)',
-                        }}
-                      >
-                        {option}
-                      </button>
-                    ))}
+                    {variant.options.map((option) => {
+                      const soldOut = option.stock <= 0;
+                      const selected = selectedVariants[variant.name] === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          disabled={soldOut}
+                          onClick={() => {
+                            setSelectedVariants((prev) => ({ ...prev, [variant.name]: option.value }));
+                            setVariantError('');
+                          }}
+                          className="btn btn-small"
+                          style={{
+                            background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
+                            color: selected ? '#fff' : soldOut ? 'var(--color-text-muted)' : 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            position: 'relative',
+                            opacity: soldOut ? 0.55 : 1,
+                            textDecoration: soldOut ? 'line-through' : 'none',
+                            cursor: soldOut ? 'not-allowed' : 'pointer',
+                          }}
+                          title={soldOut ? 'Sold out' : undefined}
+                        >
+                          {option.value}
+                          {soldOut && ' ✕'}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
