@@ -51,8 +51,7 @@ const PublicProducts = () => {
 
   const sortedCategories = useMemo(() => [...categories].sort(), [categories]);
   const sortedBrands = useMemo(() => [...brands].sort(), [brands]);
-  const featured = products.slice(0, 3);
-
+  
   const scrollToProducts = () => {
     document.getElementById('product-grid-section')?.scrollIntoView({ behavior: 'smooth' });
   };
