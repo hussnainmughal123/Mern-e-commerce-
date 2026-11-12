@@ -181,7 +181,7 @@ const PublicProducts = () => {
           <div><span className="lux-footer-label">Your account</span><Link to="/profile">My profile</Link><Link to="/orders">Order history</Link><Link to="/wishlist">Wishlist</Link></div>
           <div><span className="lux-footer-label">The ShopDash edit</span><a href="#lux-values">Our promise</a><Link to="/signup">Create an account</Link><Link to="/login">Sign in</Link></div>
         </div>
-        <div className="lux-footer-bottom"><span>© {new Date().getFullYear()} ShopDash. All rights reserved.</span><span>Designed for considered living.</span></div>
+        <div className="lux-footer-bottom"><span>© {new Date().getFullYear()} ShopDash. All rights reserved.</span><span>Designed for Smarter Business.</span></div>
       </footer>
     </div>
   );
