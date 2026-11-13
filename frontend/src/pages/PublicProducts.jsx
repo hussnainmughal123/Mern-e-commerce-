@@ -124,7 +124,7 @@ const PublicProducts = () => {
           />
         </div>
 
-        {loading && <ProductSkeleton count={8} />}
+        {loading && <ProductSkeleton count={12} />}
         {!loading && error && <ErrorMessage message={error} onRetry={loadProducts} />}
         {!loading && !error && products.length === 0 && (
           <p className="empty-state">No products match your search. Try a different keyword or filter.</p>
@@ -139,7 +139,7 @@ const PublicProducts = () => {
         )}
       </section>
 
-      <section className="lux-story">
+      <section className="lux-story" id="lux-story">
         <div className="lux-story-image">
           <div className="lux-image-note"><span>THE DETAILS MATTER</span><b>01 — 03</b></div>
         </div>
@@ -151,7 +151,7 @@ const PublicProducts = () => {
         </div>
       </section>
 
-      <section className="lux-values">
+      <section className="lux-values" id="lux-values">
         <div className="lux-values-heading">
           <span className="lux-eyebrow lux-eyebrow-dark"><i /> Our promise</span>
           <h2>Good taste. Better choices.</h2>
@@ -177,9 +177,9 @@ const PublicProducts = () => {
       <footer className="lux-footer">
         <div className="lux-footer-main">
           <div><div className="lux-footer-brand">ShopDash<span>®</span></div><p>Thoughtfully selected. Beautifully experienced.</p></div>
-          <div><span className="lux-footer-label">Explore</span><button onClick={scrollToProducts}>The collection</button><a href="#product-grid-section">New arrivals</a></div>
+          <div><span className="lux-footer-label">Explore</span><button onClick={scrollToProducts}>Browse products</button><a href="#lux-story">Our story</a></div>
           <div><span className="lux-footer-label">Your account</span><Link to="/profile">My profile</Link><Link to="/orders">Order history</Link><Link to="/wishlist">Wishlist</Link></div>
-          <div><span className="lux-footer-label">Discover</span><a href="#product-grid-section">Our approach</a><a href="#product-grid-section">Customer care</a><a href="mailto:support@shopdash.example">Get in touch</a></div>
+          <div><span className="lux-footer-label">The ShopDash edit</span><a href="#lux-values">Our promise</a><Link to="/signup">Create an account</Link><Link to="/login">Sign in</Link></div>
         </div>
         <div className="lux-footer-bottom"><span>© {new Date().getFullYear()} ShopDash. All rights reserved.</span><span>Web Design by HA Software Solution</span></div>
       </footer>

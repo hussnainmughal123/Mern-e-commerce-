@@ -164,3 +164,138 @@
 @media (prefers-reduced-motion: reduce) {
   .luxury-storefront *, .luxury-storefront *::before, .luxury-storefront *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+
+/* ================= EXPERIENCE POLISH ================= */
+/* Keep the editorial photography category-neutral for a multi-category store. */
+.lux-hero-backdrop {
+  background-image:
+    linear-gradient(90deg, rgba(18,18,16,.82) 0%, rgba(18,18,16,.52) 45%, rgba(18,18,16,.12) 100%),
+    linear-gradient(0deg, rgba(15,15,13,.38), transparent 42%),
+    url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2200&q=90');
+  background-position: center, center, center 52%;
+}
+.lux-story-image {
+  background-image: url('https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1400&q=85');
+}
+.lux-membership {
+  background-image:
+    linear-gradient(rgba(17,17,15,.62),rgba(17,17,15,.72)),
+    url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2000&q=85');
+}
+.luxury-storefront a:focus-visible,
+.luxury-storefront button:focus-visible,
+.luxury-storefront input:focus-visible,
+.luxury-storefront select:focus-visible {
+  outline: 2px solid #a88c5f;
+  outline-offset: 3px;
+}
+.lux-footer-main a,
+.lux-footer-main button {
+  width: fit-content;
+  line-height: 1.6;
+}
+.lux-footer-main a:hover,
+.lux-footer-main button:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.lux-story,
+.lux-values {
+  scroll-margin-top: 90px;
+}
+.lux-product-grid .product-card:focus-within {
+  outline: 2px solid #a88c5f;
+  outline-offset: 3px;
+}
+.lux-filter-panel .search-filter select,
+.lux-filter-panel .search-filter input {
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .lux-filter-panel .search-filter {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .lux-filter-panel .search-filter > div:first-child {
+    min-width: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lux-hero-backdrop { animation: none; transform: none; }
+}
+
+/* The theme switch in the navigation also updates the storefront surface. */
+html[data-theme='dark'] .luxury-storefront {
+  --lux-ink: #eee9df;
+  --lux-muted: #aaa397;
+  --lux-paper: #171714;
+  --lux-cream: #292720;
+  --lux-line: rgba(238,233,223,.16);
+  background: var(--lux-paper);
+  color: var(--lux-ink);
+}
+html[data-theme='dark'] .lux-intro,
+html[data-theme='dark'] .lux-collection,
+html[data-theme='dark'] .lux-values {
+  background: #171714;
+  color: #eee9df;
+}
+html[data-theme='dark'] .lux-intro p,
+html[data-theme='dark'] .lux-section-heading p,
+html[data-theme='dark'] .lux-values-grid p {
+  color: #aaa397;
+}
+html[data-theme='dark'] .lux-story {
+  background: #24221d;
+}
+html[data-theme='dark'] .lux-story-copy p {
+  color: #b5ad9f;
+}
+html[data-theme='dark'] .lux-text-link {
+  color: #eee9df;
+}
+html[data-theme='dark'] .lux-filter-panel {
+  background: rgba(255,255,255,.035);
+  border-color: rgba(238,233,223,.16);
+}
+html[data-theme='dark'] .lux-filter-panel .search-input,
+html[data-theme='dark'] .lux-filter-panel .category-select {
+  background: #24221d;
+  border-color: rgba(238,233,223,.18);
+  color: #eee9df;
+}
+html[data-theme='dark'] .lux-product-grid .product-card {
+  background: #24221d;
+  border-color: rgba(238,233,223,.12);
+  color: #eee9df;
+}
+html[data-theme='dark'] .lux-product-grid .product-card-img {
+  background: #302d26;
+}
+html[data-theme='dark'] .lux-product-grid .product-card-body .description,
+html[data-theme='dark'] .lux-product-grid .stock {
+  color: #b5ad9f;
+}
+html[data-theme='dark'] .lux-product-grid .price {
+  color: #eee9df;
+}
+html[data-theme='dark'] .lux-categories .category-icon-pill {
+  color: #c8c0b3;
+  border-color: rgba(238,233,223,.18);
+}
+html[data-theme='dark'] .lux-categories .category-icon-pill.active {
+  background: #e7dfd1;
+  border-color: #e7dfd1;
+  color: #24221d;
+}
+html[data-theme='dark'] .luxury-storefront .pagination .btn {
+  color: #eee9df;
+  border-color: rgba(238,233,223,.18);
+}
+html[data-theme='dark'] .luxury-storefront .pagination .btn-primary {
+  background: #e7dfd1;
+  color: #24221d;
+}
+html[data-theme='dark'] .luxury-storefront .empty-state {
+  color: #aaa397;
+}
